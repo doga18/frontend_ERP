@@ -1,0 +1,129 @@
+import React, { useState, useEffect } from "react";
+
+import { useSelector, useDispatch } from "react-redux";
+import { loginUser } from "../../slices/authSlice";
+
+import Message from '../../components/Message';
+import { AppDispatch } from '../../store';
+
+  // Interface para o estado de erro
+  interface ErrorState {
+    message: string[];
+  }
+  interface LoginForm {
+    email: string;
+    password: string;
+  }
+
+const Login = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false);
+  const [error, setError] = useState<ErrorState[]>([]);
+  // Preparando o dispatch para usar o Redux
+  const dispatch: AppDispatch = useDispatch();
+  const {
+    error: AuthError,
+    user: AuthUser,
+    isLoading: AuthLoading,
+    success: AuthSuccess
+  } = useSelector((state: any) => state.auth);
+  
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError([{ message: ["Email e senha são obrigatórios."] }]);
+      return;
+    }
+    // Montando o objeto de Login
+    const LoginData: LoginForm = {
+      email: email,
+      password: password,
+    }
+    console.log("Dados de login:", LoginData);
+    // Disparando o pedido de login
+    dispatch(loginUser(LoginData))
+  };
+  // Configurando o efeito para lidar com as respostas.
+  useEffect(() => {
+    if(AuthLoading){
+      setIsLoadingPage(true);
+    }
+    if(AuthError){
+      setIsLoadingPage(false);
+      setError(AuthError.message || ["Erro ao fazer login."]);
+    }
+    if(AuthUser){
+      setIsLoadingPage(false);
+      setError([]);
+      // Redirecionar ou fazer algo após o login bem-sucedido
+      console.log("Usuário autenticado:", AuthUser);
+      // Aqui você pode redirecionar para outra página, por exemplo:
+      // window.location.href = '/dashboard';
+    }    
+    if(AuthSuccess){
+      setIsLoadingPage(false);
+      setError([]);
+      // Redirecionar ou fazer algo após o login bem-sucedido
+      console.log("Login bem-sucedido:", AuthSuccess);
+      // Aqui você pode redirecionar para outra página, por exemplo:
+      // window.location.href = '/dashboard';
+    }
+  }, [AuthError, AuthUser, AuthLoading, AuthSuccess]);
+
+  return (
+    <div className="flex h-screen w-screen">
+      {/* Lado esquerdo */}
+      <div className="w-1/3 flex items-center justify-center bg-amber-800">
+        <div className="w-3/4 h-3/4 bg-amber-900 rounded-lg flex items-center justify-center">
+          <img
+            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg"
+            alt="Imagem de login"
+            className="w-96 h-96 object-contain"
+          />
+        </div>
+      </div>
+      {/* Lado direito */}
+      <div className="flex-1 flex items-center justify-center bg-indigo-600">
+        <div className="w-full max-w-md p-8 bg-indigo-700 rounded-lg shadow-lg flex flex-col gap-6">
+          <h1 className="text-3xl text-white text-center font-bold">Login</h1>
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <input
+              type="text"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+            <button
+              className="bg-amber-900 hover:bg-amber-700 hover:scale-95 hover:font-bold text-white p-3 rounded font-semibold transition-colors"
+              type="submit"
+            >
+              Entrar
+            </button>
+          </form>
+          <p className="text-white text-center">
+            Não tem uma conta?{" "}
+            <a
+              href="/register"
+              className="text-blue-300 underline hover:text-blue-400"
+            >
+              Cadastre-se
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
