@@ -2,54 +2,34 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import authService from "../services/authService";
 // import { AuthUserInterface } from "../interfaces/AuthSimpleInterface";
 
-interface AuthUserInterface {
-  userId: string;
-  name: string;
-  lastname: string;
-  email: string;
-  password: string;
-  laspassword?: string;
-  avaiable: boolean;
-  hash_recover_password?: string;
-  roleId: number;
-  token: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+// interface AuthUserInterface {
+//   userId: string;
+//   name: string;
+//   lastname: string;
+//   email: string;
+//   password: string;
+//   laspassword?: string;
+//   avaiable: boolean;
+//   hash_recover_password?: string;
+//   roleId: number;
+//   token: string;
+//   createdAt?: string;
+//   updatedAt?: string;
+// }
 interface UserState {
   // user: Record<string, any> | null;
-  user: AuthUserInterface | null;
+  user: userData | null; // O usuário pode ser nulo inicialmente
   success: boolean;
   error: string | null;
   isLoading: boolean;
   message: string | null;
 }
-
-// interface CustomError {
-//   message: string;
-//   // adicione outros campos, se necessário
-// }
-
-const initialState: UserState = {
-  user: JSON.parse(localStorage.getItem("user") || "null"),
-  success: false,
-  error: null,
-  isLoading: false,
-  message: null,
-};
-
 // Tipo de resposta
 interface RegisterUserResponse {
   message: string;
   // user: Record<string, AuthUserInterface>;
   user: AuthUserInterface;
 }
-
-// interface RejectAction {
-//   payload?: Record<string, any>;
-//   error?: Record<string, any>;
-//   type: string;
-// }
 
 interface RegisterUserResponseError {
   errors: string[];
@@ -92,6 +72,15 @@ interface updateTimePasswordProps {
   password: string;
 }
 
+const initialState: UserState = {
+  user: JSON.parse(localStorage.getItem("user") as string) || {},
+  success: false,
+  error: null,
+  isLoading: false,
+  message: null,
+};
+
+
 // Slice de Login
 export const loginUser = createAsyncThunk<
   AuthUserInterface,
@@ -100,16 +89,28 @@ export const loginUser = createAsyncThunk<
 >("auth/loginUser", async (user, thunkAPI) => {
   try {
     const response = await authService.login(user);
+    console.log("Resposta do login:", response);
     if (response.errors) {
       return thunkAPI.rejectWithValue({ errors: response.errors });
-    } else if (response.token && response.user) {
+    } else if (response.user && response.user.token) {
+      // Removendo os dados do localStorage
+      if (localStorage.getItem("user")) {
+        localStorage.removeItem("user");
+      }
+      if (localStorage.getItem("token")) {
+        localStorage.removeItem("token");
+      }
+      localStorage.setItem("user", JSON.stringify(response.user));
+      localStorage.setItem("token", JSON.stringify(response.user.token));
+      localStorage.setItem("error", "");
       return response;
     } else {
       return thunkAPI.rejectWithValue({
         errors: ["Usuário ou token inválido."],
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    console.error("Erro ao fazer login:", error);
     return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
   }
 });
@@ -215,7 +216,7 @@ const userSlice = createSlice({
             state.error = action.payload.errors[0];
           } else {
             state.error = null;
-            state.user = action.payload?.user || {}; // Garante que `user` tenha um valor padrão
+            state.user = action.payload || null; // Garante que `user` tenha um valor padrão
           }
         }
       )
@@ -239,11 +240,12 @@ const userSlice = createSlice({
             state.error = action.payload.errors[0];
           } else if (action.payload && action.payload.user) {
             state.error = null;
-            localStorage.setItem("user", JSON.stringify(action.payload.user));
-            if (action.payload.user.token) {
-              localStorage.setItem("token", action.payload.user.token);
-            }
-            state.user = action.payload.user;
+            // Armazenando o usuário e o token no localStorage
+            // if (action.payload.user.token) {
+            //   localStorage.setItem("token", action.payload.user.token);
+            //   localStorage.setItem("user", JSON.stringify(action.payload.user.userId))
+            // }
+            state.user = action.payload || null; // Garante que `user` tenha um valor padrão
             state.message = action.payload.message || null;
           } else {
             state.error = "Usuário ou token inválido.";

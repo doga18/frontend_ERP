@@ -14,7 +14,7 @@ export const store = configureStore({
   auth: authReducer,
   // company: companyReducer,
   // companyDetail: companyDetailReducer,
-  // user: userReducer,  
+  // user: userReducer,
   // client: clientReducer,
   // os: osServices,  // Adicione os reducers dos serviços operacionais aqui
   },

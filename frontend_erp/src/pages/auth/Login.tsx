@@ -69,12 +69,18 @@ const Login = () => {
       // Redirecionar ou fazer algo após o login bem-sucedido
       console.log("Login bem-sucedido:", AuthSuccess);
       // Aqui você pode redirecionar para outra página, por exemplo:
-      // window.location.href = '/dashboard';
+      window.location.href = '/';
     }
-  }, [AuthError, AuthUser, AuthLoading, AuthSuccess]);
+  }, [dispatch, AuthError, AuthUser, AuthLoading, AuthSuccess]);
 
   return (
     <div className="flex h-screen w-screen">
+      <Message msg="Basta realizar o login" type="info"/>
+      {isLoadingPage && <Message msg="Carregando..." type="info"/>}
+      {AuthSuccess && <Message msg="Login bem-sucedido, redirecionando..." type="success"/>}
+      {error && (
+        error
+      )}
       {/* Lado esquerdo */}
       <div className="w-1/3 flex items-center justify-center bg-amber-800">
         <div className="w-3/4 h-3/4 bg-amber-900 rounded-lg flex items-center justify-center">
@@ -105,7 +111,7 @@ const Login = () => {
               className="p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
             <button
-              className="bg-amber-900 hover:bg-amber-700 hover:scale-95 hover:font-bold text-white p-3 rounded font-semibold transition-colors"
+              className={`bg-amber-900 hover:bg-amber-700 hover:scale-95 hover:font-bold text-white p-3 rounded font-semibold transition-colors ${isLoadingPage ? "opacity-50 cursor-not-allowed" : ""}`}
               type="submit"
             >
               Entrar
@@ -114,8 +120,9 @@ const Login = () => {
           <p className="text-white text-center">
             Não tem uma conta?{" "}
             <a
-              href="/register"
-              className="text-blue-300 underline hover:text-blue-400"
+              href={isLoadingPage ? undefined : "/register"}
+              className={`text-blue-300 underline hover:text-blue-400${isLoadingPage ? " pointer-events-none opacity-50" : ""}`}
+              onClick={isLoadingPage ? (e) => e.preventDefault() : undefined}
             >
               Cadastre-se
             </a>

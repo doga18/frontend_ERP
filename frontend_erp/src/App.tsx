@@ -7,12 +7,15 @@ import { useAuth } from "./hooks/useAuth";
 // import { Home } from './pages/home/Home';
 import Login from "./pages/auth/Login.tsx";
 import Register from "./pages/auth/Register.tsx";
+import Home from "./pages/home/Home.tsx";
 // import { About } from './pages/About';
 
 function App() {
   // const [count, setCount] = useState(0)
   // Pegando o privilégio de usuário.
   const { roleUser } = useAuth();
+
+  console.log(roleUser);
 
   return (
     <>
@@ -27,6 +30,9 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                 </>
+              )}
+              {roleUser && (
+                <Route path="/" element={<Home />} />
               )}
               <Route path="/register" element={<Register />} />
               {roleUser && roleUser[0] === "Admin" && (

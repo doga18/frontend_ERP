@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 
 export const useAuth = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -35,28 +35,28 @@ export const useAuth = () => {
     // console.log("Auth state:", auth);
     // console.log("Loading state:", loading);
     const checkAuth = async () => {
-      //console.log(Object.keys(user.timePassword));
+      console.log('Tentando ler oque vem no user.');
       if (user && Object.keys(user).length > 0) {
         // Setando a Role do user para retornar esse valor.
         const userRole = checkAccountType(user.roleId ?? 6);
+        console.log('userRole', user.userId);
         // console.log(userRole)
         // Retornando o ID do usuário no userLoggedId
         setUserLoggedId(user.userId);
         setRoleUser(userRole);
         setAuth(true);
-        setUserCompanyId(user.companyId ?? null);
         // Verificando se o usuário está com a senha temporária habilitado, caso esteja, redireciona para renovar a senha.
-        if(user.timePassword){
-          console.log('Usando autenticação de senha temporária.')
-          setUserTempTrue(true);
-          // navigate('/change-password', { replace: true });
-          // window.location.href = '/change-password'; // Redireciona para a página de mudança de senha.
-        }else if(user.timePassword === null){
-          console.log('Usando autenticação de senha.')
-          setUserTempTrue(false);
-          // navigate('/', { replace: true });
-          // window.location.href = '/'; // Redireciona para a página inicial.
-        }
+        // if(user.timePassword){
+        //   console.log('Usando autenticação de senha temporária.')
+        //   setUserTempTrue(true);
+        //   // navigate('/change-password', { replace: true });
+        //   // window.location.href = '/change-password'; // Redireciona para a página de mudança de senha.
+        // }else if(user.timePassword === null){
+        //   console.log('Usando autenticação de senha.')
+        //   setUserTempTrue(false);
+        //   // navigate('/', { replace: true });
+        //   // window.location.href = '/'; // Redireciona para a página inicial.
+        // }
       } else {
         setAuth(false);
       }
