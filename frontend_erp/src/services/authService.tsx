@@ -9,7 +9,7 @@ interface RegisterUserResponse {
   name: string;
   lastname: string;
   email: string;
-  password: string;
+  password?: string;
 }
 
 const getToken = () => {
@@ -37,9 +37,9 @@ const getToken = () => {
 const register = async(data: RegisterUserResponse) => {
   const config = requestConfig("POST", data);
   try {
-    const res = await fetch(`${api}/users/register`, config)
+    const res = await fetch(`${api}/users`, config)
       .then((res) => res.json())
-      .catch((err: any) => console.log(err))
+      .catch((err: unknown) => console.log(err))
     return res
   } catch (error) {
     console.log(error);

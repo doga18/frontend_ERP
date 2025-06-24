@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { loginUser } from "../../slices/authSlice";
 
 import Message from '../../components/Message';
-import { AppDispatch } from '../../store';
+import type { AppDispatch } from '../../store'; 
+import type { RootState } from '../../store';
+//import type { RootState } from '@reduxjs/toolkit/query';
 
-  // Interface para o estado de erro
-  interface ErrorState {
-    message: string[];
-  }
-  interface LoginForm {
-    email: string;
-    password: string;
-  }
+// import { useAuth } from "../../hooks/useAuth";
+
+// Interface para o estado de erro
+  
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 const Login = () => {
+  // Preparando o uso do navigate
+  // const navigate = useNavigate();
+  // Variaveis
+  // const { user } = useAuth();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false);
-  const [error, setError] = useState<ErrorState[]>([]);
+  const [error, setError] = useState<string | null>();
   // Preparando o dispatch para usar o Redux
   const dispatch: AppDispatch = useDispatch();
   const {
@@ -27,14 +35,14 @@ const Login = () => {
     user: AuthUser,
     isLoading: AuthLoading,
     success: AuthSuccess
-  } = useSelector((state: any) => state.auth);
+  } = useSelector((state: RootState) => state.auth);
   
 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError([{ message: ["Email e senha são obrigatórios."] }]);
+      setError("Todos os campos devem ser preenchidos");
       return;
     }
     // Montando o objeto de Login
@@ -46,18 +54,18 @@ const Login = () => {
     // Disparando o pedido de login
     dispatch(loginUser(LoginData))
   };
-  // Configurando o efeito para lidar com as respostas.
   useEffect(() => {
     if(AuthLoading){
       setIsLoadingPage(true);
     }
     if(AuthError){
       setIsLoadingPage(false);
-      setError(AuthError.message || ["Erro ao fazer login."]);
+      setError(AuthError.message)
+      console.log("Erro no login:", AuthError.message);
     }
     if(AuthUser){
       setIsLoadingPage(false);
-      setError([]);
+      setError('');
       // Redirecionar ou fazer algo após o login bem-sucedido
       console.log("Usuário autenticado:", AuthUser);
       // Aqui você pode redirecionar para outra página, por exemplo:
@@ -65,7 +73,7 @@ const Login = () => {
     }    
     if(AuthSuccess){
       setIsLoadingPage(false);
-      setError([]);
+      setError('');
       // Redirecionar ou fazer algo após o login bem-sucedido
       console.log("Login bem-sucedido:", AuthSuccess);
       // Aqui você pode redirecionar para outra página, por exemplo:
@@ -79,7 +87,7 @@ const Login = () => {
       {isLoadingPage && <Message msg="Carregando..." type="info"/>}
       {AuthSuccess && <Message msg="Login bem-sucedido, redirecionando..." type="success"/>}
       {error && (
-        error
+        <Message msg={error} type="error" />
       )}
       {/* Lado esquerdo */}
       <div className="w-1/3 flex items-center justify-center bg-amber-800">
@@ -117,6 +125,7 @@ const Login = () => {
               Entrar
             </button>
           </form>
+          {error && <p className="text-red-500 text-center text-semibold text-shadow-2xs text-2xl">{error}</p>}
           <p className="text-white text-center">
             Não tem uma conta?{" "}
             <a

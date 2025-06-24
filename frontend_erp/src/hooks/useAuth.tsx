@@ -8,8 +8,8 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [roleUser, setRoleUser] = useState<(string | number)[] | undefined>(undefined);
   const [userLoggedId, setUserLoggedId] = useState<number | null>(null);
-  const [userTempTrue, setUserTempTrue] = useState<boolean>(false);
-  const [userCompanyId, setUserCompanyId] = useState<number | null>(null);
+  // const [userTempTrue, setUserTempTrue] = useState<boolean>(false);
+  // const [userCompanyId, setUserCompanyId] = useState<number | null>(null);
 
   // Função para Determinar o tipo de conta.
   const checkAccountType = (typeAcc: number) => {
@@ -36,6 +36,7 @@ export const useAuth = () => {
     // console.log("Loading state:", loading);
     const checkAuth = async () => {
       console.log('Tentando ler oque vem no user.');
+      console.log(user);
       if (user && Object.keys(user).length > 0) {
         // Setando a Role do user para retornar esse valor.
         const userRole = checkAccountType(user.roleId ?? 6);
@@ -58,6 +59,7 @@ export const useAuth = () => {
         //   // window.location.href = '/'; // Redireciona para a página inicial.
         // }
       } else {
+        console.log('user not logged');
         setAuth(false);
       }
       setLoading(false);
@@ -73,8 +75,6 @@ export const useAuth = () => {
     loading,
     roleUser,
     userLoggedId,
-    userTempTrue,
     user,
-    userCompanyId
   };
 };

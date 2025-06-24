@@ -1,7 +1,7 @@
 // import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { useAuth } from "./hooks/useAuth";
+// import { useAuth } from "./hooks/useAuth";
 
 // Pages Basics
 // import { Home } from './pages/home/Home';
@@ -10,12 +10,14 @@ import Register from "./pages/auth/Register.tsx";
 import Home from "./pages/home/Home.tsx";
 // import { About } from './pages/About';
 
+// Importando os layout dependendo da autenticação do usuário /// Pages
+import MainLayout from "./components/MainLayout.tsx";
+import AuthLayout from "./components/AuthLayoyt.tsx";
+
 function App() {
   // const [count, setCount] = useState(0)
   // Pegando o privilégio de usuário.
-  const { roleUser } = useAuth();
-
-  console.log(roleUser);
+  // const { roleUser } = useAuth();
 
   return (
     <>
@@ -23,24 +25,31 @@ function App() {
         <div className="w-screen h-screen">
           <BrowserRouter>
             <Routes>
-              {/* <Route path="/" element={<h1>Home Page</h1>} />
-          <Route path="/about" element={<h1>About Page</h1>} /> */}
-              {!roleUser && (
-                <>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                </>
-              )}
-              {roleUser && (
-                <Route path="/" element={<Home />} />
-              )}
-              <Route path="/register" element={<Register />} />
-              {roleUser && roleUser[0] === "Admin" && (
-                <Route path="/admin" element={<h1>Admin Page</h1>} />
-              )}
-              {roleUser && roleUser[0] === "Manager" && (
-                <Route path="/manager" element={<h1>Manager Page</h1>} />
-              )}
+              <Route
+                path="/"
+                element={
+                  <MainLayout >
+                    <Home />
+                  </MainLayout>
+                }
+              />
+                {/* Rotas com AuthLayout */}
+              <Route 
+                path="/login"
+                element={
+                  <AuthLayout>
+                    <Login />
+                  </AuthLayout>
+                }
+              />
+              <Route 
+                path="/register"
+                element={
+                  <AuthLayout>
+                    <Register />
+                  </AuthLayout>
+                }
+              />
             </Routes>
           </BrowserRouter>
         </div>
