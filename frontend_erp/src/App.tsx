@@ -22,7 +22,7 @@ function App() {
   return (
     <>
       <div className="App min-h-screen">
-        <div className="w-screen h-screen">
+        <div className="h-screen">
           <BrowserRouter>
             <Routes>
               <Route

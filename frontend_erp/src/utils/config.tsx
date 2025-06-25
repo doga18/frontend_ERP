@@ -15,7 +15,7 @@ interface Clients {
   cpf: string;
 }
 
-const getToken = () => {
+export const getToken = () => {
   try {
     if(localStorage.getItem('token')){      
       const token = JSON.parse(localStorage.getItem('token') || '');

@@ -41,7 +41,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <div>
           <NavBar logout={handleLogout} />
             <Header />
-              <main className="container mx-auto p-4">{children}</main>
+              <main>{children}</main>
             <Footer />
         </div>
       )}
