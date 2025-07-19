@@ -5,7 +5,7 @@ export const files = 'http://localhost:3001/files';
 export const apiCep = 'https://viacep.com.br/ws/'
 
 interface responseListClients {
-  clients: Clients[]
+  clients: Clients[] | undefined;
 }
 
 interface Clients {
@@ -15,6 +15,19 @@ interface Clients {
   cpf: string;
 }
 
+// Exportando a função que retorna o horário local formatado.
+  // Convertendo datas e horas
+  export const formatDateTimeLocal = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16); // Formato YYYY-MM-DDTHH:mm
+
+    return localTime;
+  };
+
+// Exportando função que retorna o token.
 export const getToken = () => {
   try {
     if(localStorage.getItem('token')){      
@@ -37,7 +50,24 @@ export const getToken = () => {
 }
 
 // Exportando função que retorna o CEP.
-export const getCep = async (cep: string): Promise<any> => {
+interface CepResponse {
+  cep: string;
+  logradouro: string;
+  complemento: string;
+  unidade: string;
+  bairro: string;
+  localidade: string;
+  uf: string;
+  estado: string;
+  regiao: string;
+  ibge: string;  
+  gia: string;
+  ddd: string;
+  siafi: string;
+  erro?: boolean;
+}
+
+export const getCep = async (cep: string): Promise<CepResponse | null> => {
   if(cep.length > 8) return null;
   const response = await fetch(`${apiCep}${cep}/json`);  
   if (!response.ok) {
@@ -46,10 +76,11 @@ export const getCep = async (cep: string): Promise<any> => {
   if(response.status === 200){
     return response.json();
   }
-  
+  return null;
 };
 
-export const getListClients = async (namePart: string, idCompany: string): Promise<responseListClients> => {
+// Exportando função que retorna a lista de clientes.
+export const getListClients = async (namePart: string, idCompany: string): Promise<responseListClients | undefined> => {
   if(namePart.length <= 2) return {clients: []};
   const token = getToken();
   const config = requestConfig("GET", null, token);
@@ -63,6 +94,7 @@ export const getListClients = async (namePart: string, idCompany: string): Promi
   }
 }
 
+// Exportando função que retorna a configuração da requisição.
 export const requestConfig = (
   method: string,
   data: any = null,

@@ -8,6 +8,7 @@ import "./App.css";
 import Login from "./pages/auth/Login.tsx";
 import Register from "./pages/auth/Register.tsx";
 import Home from "./pages/home/Home.tsx";
+import Clients from "./pages/client/Clients.tsx";
 // import { About } from './pages/About';
 
 // Importando os layout dependendo da autenticação do usuário /// Pages
@@ -30,6 +31,14 @@ function App() {
                 element={
                   <MainLayout >
                     <Home />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/clients"
+                element={
+                  <MainLayout >
+                    <Clients />
                   </MainLayout>
                 }
               />

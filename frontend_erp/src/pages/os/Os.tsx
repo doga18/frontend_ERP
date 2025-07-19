@@ -3,9 +3,18 @@ import React, { useState, useEffect} from 'react'
 // importando icons
 // import { BugAntIcon } from '@heroicons/react/24/outline';
 
+// Importando funções úteis
+import { formatDateTimeLocal } from '../../utils/config';
+
 // Importando o tratamento do dispath.
 import { useSelector, useDispatch } from 'react-redux';
-import { getAllOsWithLimitAndPage, getOsById_number, getOsById, getOsByArgumentsString } from '../../slices/osSlice';
+import { 
+  getAllOsWithLimitAndPage,
+  getOsById_number,
+  /*getOsById,*/
+  getOsByArgumentsString,
+  //updateOsDetails
+} from '../../slices/osSlice';
 
 // Importando o tratamento do dispath.
 import type { AppDispatch, RootState } from '../../store';
@@ -90,15 +99,15 @@ const Os = ({ setCountOs } : Props) => {
     dispatch(getOsByArgumentsString({ searchTerm: text }));
   }
 
-  const searchByUUID = (uuid: string) => {
-    console.log('UUID recebido para busca é: ' + uuid);
-    dispatch(getOsById({ searchTerm: uuid }));
-  }
+  // const searchByUUID = (uuid: string) => {
+  //   console.log('UUID recebido para busca é: ' + uuid);
+  //   dispatch(getOsById({ searchTerm: uuid }));
+  // }
 
-  // Montando o Modal para exibir os detalhes da OS
-  const handleOsDetailsModal = (uuid: string) => {
-    console.log('UUID recebido para exibir os detalhes da OS é: ' + uuid);
-  }
+  // // Montando o Modal para exibir os detalhes da OS
+  // const handleOsDetailsModal = (uuid: string) => {
+  //   console.log('UUID recebido para exibir os detalhes da OS é: ' + uuid);
+  // }
 
   // UseEffect
   useEffect(() => {
@@ -153,9 +162,9 @@ const Os = ({ setCountOs } : Props) => {
           </div>
         ) : (
           <>
-            <div className="bg-white shadow-md rounded-lg p-4 text-gray-950">
+            <div className="bg-white shadow-md rounded-lg p-4 text-gray-950 overflow-auto">
               <h2 className="text-xl font-semibold mb-4">Lista de Ordens de Serviço</h2>
-              <table className="min-w-full">
+              <table className="min-w-full ">
                 <thead>
                   <tr className="bg-gray-200">
                     <th className="py-2 px-4 text-left">OS</th>
@@ -170,27 +179,38 @@ const Os = ({ setCountOs } : Props) => {
                     <th className="py-2 px-4 text-left">Ações</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {/* Exemplo de dados, você pode substituir por dados reais */}
+                <tbody className='bg-gray-100'>
                   {allOs && allOs.length > 0 ? (
                     allOs.map((os, index) => (
                       // Criando um link para poder analisar a OS detalhadamente
                       <tr key={index} className='items-center align-middle'>
                         <td className="py-2 px-4 border-b" title={`UUID: ${os.osId}`}>{os.os_number}</td>
-                        <td className="py-2 px-4 border-b">{os.title}</td>
-                        <td className="py-2 px-4 border-b">{os.description}</td>
-                        <td className="py-2 px-4 border-b">{os.status}</td>
+                        <td className="py-2 px-4 border-b">
+                          {os.title.split(' ').slice(0, 3).join(' ')}...
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          {os.description.split(' ').slice(0, 3).join(' ')}...
+                        </td>
+                        <td className="py-2 px-4 border-b" title={os.status}>{os.status.split(' ').slice(0, 1).join(' ')}...</td>
                         <td className="py-2 px-4 border-b">{os.priority}</td>
-                        <td className="py-2 px-4 border-b">{os.user.name}</td>
-                        <td className="py-2 px-4 border-b">{os.budget}</td>
-                        <td className="py-2 px-4 border-b">{os.createdAt}</td>
-                        <td className="py-2 px-4 border-b">{os.updatedAt}</td>
+                        <td className="py-2 px-4 border-b">{os.clientAssigned?.name || 'N/A'}</td>
+                        <td className="py-2 px-4 border-b">R$: {os.budget}</td>
+                        <td className="py-2 px-4 border-b">
+                          <input type="datetime-local" value={formatDateTimeLocal(os.createdAt)} disabled />
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          <input type="datetime-local" value={formatDateTimeLocal(os.updatedAt)} disabled />
+                        </td>
                         <td className="py-3 border-b flex">
-                          <OsDetails
-                            os={selectedOs}
-                            isOpen={modalOsDetails}
-                            onClose={() => setModalOsDetails(false)}
-                            />
+                          <button
+                            className="text-white  hover:underline ml-2"
+                            onClick={() => {
+                              setSelectedOs(os);
+                              setModalOsDetails(true);
+                            }}
+                            >
+                            Editar
+                          </button>
                           <button className="text-red-500 hover:underline ml-2">Excluir</button>
                         </td>
                       </tr>
@@ -201,6 +221,16 @@ const Os = ({ setCountOs } : Props) => {
                         Nenhuma Ordem de Serviço encontrada
                       </td>
                     </tr>
+                  )}
+                  {selectedOs && (
+                    <OsDetails
+                      os={selectedOs}
+                      isOpen={modalOsDetails}
+                      onClose={() => {
+                        setModalOsDetails(false);
+                        dispatch(getAllOsWithLimitAndPage({ page: currentPage, limit: 10 }));
+                      }}
+                    />
                   )}
                 </tbody>            
               </table>

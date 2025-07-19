@@ -21,7 +21,7 @@ interface ResponseDataUniqueInAll {
   discount: string;
   createdAt: string;
   updatedAt: string;
-  user: UserDataOnOs;
+  user?: UserDataOnOs;
 }
 interface getResponseOs {
   success: boolean;
@@ -40,6 +40,21 @@ interface getResponseWithOsNumberDataIn {
   page?: number;
   limit?: number;
 }
+interface OsUpdateInterface {
+  osId: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  budget?: string;
+  discount?: string;
+  updatedAt?: string;
+}
+
+interface OsUpdateInterfaceResponse {
+  message: string;
+  os: ResponseDataUniqueInAll;
+}
+
 
 // Iniciando os estados.
 const initialState: getResponseOs = {
@@ -124,6 +139,21 @@ export const getOsByArgumentsString = createAsyncThunk<
     return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
   }
   })
+// Slice de atualização de OS.
+export const updateOsDetails = createAsyncThunk<
+  OsUpdateInterfaceResponse,
+  OsUpdateInterface,
+  { rejectValue: { errors: string[] } }
+>("os/updateOsDetails", async (data: OsUpdateInterface, thunkAPI) => {
+  try {
+    const response = await osService.updateOsDetails(data);
+    return response;
+  } catch (error: unknown) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+})
+  // OsUpdateInterface
 // Criando o Slice.
 const osSlice = createSlice({
   name: "os",
@@ -240,6 +270,35 @@ const osSlice = createSlice({
         state.totalPages = action.payload.totalPages;
         state.currentPage = action.payload.currentPage;
       })
+      // Update data about OS.
+      .addCase(updateOsDetails.pending, (state) => {
+        state.success = false;
+        state.error = null;
+        state.loading = true;
+        state.message = null;
+      })
+      .addCase(updateOsDetails.fulfilled, (state, action) => {
+        state.success = true;
+        state.error = null;
+        state.loading = false;
+        state.message = action.payload.message;
+        // Aqui você pode adicionar a lógica para atualizar o estado com os dados da OS atualizada
+        console.log("OS atualizada:", action.payload.os);
+        const updatedOs = action.payload.os;
+        // Exemplo: Atualizar a OS no estado
+        const index = state.data.findIndex(os => os.osId === updatedOs.osId);
+        if (index !== -1) {
+          state.data[index] = updatedOs; // Atualiza a OS existente
+        } else {
+          state.data.push(updatedOs); // Ou adiciona como nova se não existir
+        }
+      })
+      .addCase(updateOsDetails.rejected, (state, action) => {
+        state.success = false;
+        state.error = { message: action.payload?.errors[0] || "Erro Desconhecido." };
+        state.loading = false;
+        state.message = null;
+      });
   },
 });
 

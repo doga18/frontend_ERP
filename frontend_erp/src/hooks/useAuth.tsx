@@ -35,12 +35,11 @@ export const useAuth = () => {
     // console.log("Auth state:", auth);
     // console.log("Loading state:", loading);
     const checkAuth = async () => {
-      console.log('Tentando ler oque vem no user.');
-      console.log(user);
+      //console.log(user);
       if (user && Object.keys(user).length > 0) {
         // Setando a Role do user para retornar esse valor.
         const userRole = checkAccountType(user.roleId ?? 6);
-        console.log('userRole', user.userId);
+        //console.log('userRole', user.userId);
         // console.log(userRole)
         // Retornando o ID do usuário no userLoggedId
         setUserLoggedId(user.userId);

@@ -3,6 +3,17 @@ import { api, requestConfig, getToken } from "../utils/config";
 // Get Token to send
 const token = getToken();
 
+// Interfaces
+export interface OsUpdateInterface {
+  osId: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  budget?: string;
+  discount?: string;
+  updatedAt?: string;
+}
+
 // Funções
 const getAllOs = async () => {
   const config = requestConfig("GET", null, token);
@@ -74,12 +85,27 @@ const getOsById = async (uuid: string) => {
   }
 }
 
+// Editando OS.
+const updateOsDetails = async (data: OsUpdateInterface) => {
+  const config = requestConfig("PUT", data, token);
+  try {
+    const res = await fetch(`${api}/os/${data.osId}`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err));
+    return res;
+  } catch (error) {
+    console.error('Erro ao atualizar OS:', error);
+    throw new Error("Erro na API, ao atualizar OS.");
+  }
+}
+
 const osService = {
   getAllOs,
   getOsById,
   getAllOsWithLimitAndPage,
   getOsById_number,
-  getOsByArgumentsString
+  getOsByArgumentsString,
+  updateOsDetails
 }
 
 export default osService

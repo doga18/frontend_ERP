@@ -44,7 +44,7 @@ const Home = () => {
   
   return (
     <section className='items-center justify-center px-40'>
-      <div className="min-h-screen p-6 ">
+      <div className="min-h-screen w-full ">
         <h1 className="text-3xl mb-6 font-extralight">Dashboard - Visão Geral</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-gray-950">
