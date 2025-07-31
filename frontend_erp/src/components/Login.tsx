@@ -79,8 +79,8 @@ const Register = () => {
   // Alterando informações com use Effect
   useEffect(() => {
     // Printando caso aja modificação, apagar depois.
-    console.log('mensagem de erro: '+ AuthError);
-    console.log('mensagem de mensagem: '+ mensagens);
+    // console.log('mensagem de erro: '+ AuthError);
+    // console.log('mensagem de mensagem: '+ mensagens);
     // Zerando as mensagens;
     setErrors('');
     setMensagens('');

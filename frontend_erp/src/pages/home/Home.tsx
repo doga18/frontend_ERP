@@ -137,7 +137,7 @@ interface resumeStatus {
     dispatch(getAllOs());
     dispatch(getDataResume());
     dispatch(getResumeUsers());
-  }, [])
+  }, [dispatch])
 
   // Tratando as variaveis após o evento.
   useEffect(() => {

@@ -337,7 +337,7 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
                             placeholder={discountOsNow === '0' ? '0%' : discountOsNow + '%'}
                             value={discountOsNow + '%'}
                             onChange={(e) => setDiscountOsNow(e.target.value.replace('%', ''))}
-                            className="block w-full rounded-md bg-white px-3 py-1.5 pr-10 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+                            className="block w-full rounded-md bg-white px-3 py-1.5 pr-10 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm"
                           />
                           {discountOsNow && (
                             <button

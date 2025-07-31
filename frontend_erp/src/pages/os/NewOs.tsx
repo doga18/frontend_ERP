@@ -111,7 +111,7 @@ const NewOs = ({ isOpen, onClose }: Props) => {
 
   useEffect(() => {
     if (rowsClients) setclientDataForm(rowsClients);
-  }, []);
+  }, [rowsClients]);
 
   useEffect(() => {
     if (clientNameSearch.length >= 2) {
