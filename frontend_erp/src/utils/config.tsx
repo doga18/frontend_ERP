@@ -1,9 +1,10 @@
-export const api = 'http://localhost:3001/api';
-export const uploads = 'http://localhost:3001/uploads';
-export const uploadsOs = 'http://localhost:3001';
-export const hostfile = 'http://localhost:3001';
-export const files = 'http://localhost:3001/files';
-export const apiCep = 'https://viacep.com.br/ws/'
+// Importando variáveis de ambiente
+export const api = import.meta.env.VITE_API_URL;
+export const uploads = import.meta.env.VITE_API_UPLOADS;
+export const uploadsOs = import.meta.env.VITE_API_UPLOADS_OS;
+export const hostfile = import.meta.env.VITE_API_HOSTFILE;
+export const files = import.meta.env.VITE_API_FILES;
+export const apiCep = import.meta.env.VITE_API_CEP;
 
 interface responseListClients {
   clients: Clients[] | undefined;
