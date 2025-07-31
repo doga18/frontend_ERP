@@ -1,27 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import type { PayloadAction } from "@reduxjs/toolkit";
+import type { OsDetailsInterface } from '../interfaces/OsDetailsInterface';
 
 import osService from "../services/osService";
 
-// Interfaces
-interface UserDataOnOs {
-  userId: number;
-  name: string;
-  email: string;
-}
-interface ResponseDataUniqueInAll {
-  osId: string;
-  os_number: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  assignedTo: number;
-  budget: string;
-  discount: string;
-  createdAt: string;
-  updatedAt: string;
-  user?: UserDataOnOs;
+interface ResponseCreateOs {
+  message: string;
+  os: OsDetailsInterface
 }
 interface getResponseOs {
   success: boolean;
@@ -31,7 +16,7 @@ interface getResponseOs {
   total: number;
   totalPages: number;
   currentPage: number;
-  data: ResponseDataUniqueInAll[];
+  data: OsDetailsInterface[];
   termId: boolean;
 }
 interface getResponseWithOsNumberDataIn {
@@ -52,7 +37,7 @@ interface OsUpdateInterface {
 
 interface OsUpdateInterfaceResponse {
   message: string;
-  os: ResponseDataUniqueInAll;
+  os: OsDetailsInterface;
 }
 
 
@@ -99,7 +84,7 @@ export const getAllOsWithLimitAndPage = createAsyncThunk<
 })
 // Slice de busca de OS por UUID.
 export const getOsById = createAsyncThunk<
-  ResponseDataUniqueInAll,
+  OsDetailsInterface,
   getResponseWithOsNumberDataIn
   , { rejectValue: { errors: string[] } }
 >("os/getOsById", async ({searchTerm}, thunkAPI) => {
@@ -113,7 +98,7 @@ export const getOsById = createAsyncThunk<
 })
 // Slice de busca de OS por os_number
 export const getOsById_number = createAsyncThunk<
-  ResponseDataUniqueInAll,
+  OsDetailsInterface,
   getResponseWithOsNumberDataIn
   , { rejectValue: { errors: string[] } }
 >("os/getOsById_number", async ({searchTerm}, thunkAPI) => {
@@ -139,6 +124,26 @@ export const getOsByArgumentsString = createAsyncThunk<
     return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
   }
   })
+// Slice de criação de nova OS
+export const createOs = createAsyncThunk<
+ResponseCreateOs,
+FormData,
+{ rejectValue: { errors: string[] } }
+>("os/createOs", async (FormData, thunkAPI) => {
+  // Verificando oque chega no slice...
+  console.log('Dados que chegaram no slice: ');
+  console.log(FormData);
+  for (const [key, value] of FormData.entries()) {
+    console.log(`${key}: ${value}`);
+  }
+  try {
+    const response = await osService.newOs(FormData);
+    return response;
+  } catch (error: unknown) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+})
 // Slice de atualização de OS.
 export const updateOsDetails = createAsyncThunk<
   OsUpdateInterfaceResponse,
@@ -269,6 +274,29 @@ const osSlice = createSlice({
         state.total = action.payload.total;
         state.totalPages = action.payload.totalPages;
         state.currentPage = action.payload.currentPage;
+      })
+      // Create new OS
+      .addCase(createOs.pending, (state) => {
+        state.success = false;
+        state.error = null;
+        state.loading = true;
+        state.message = null;
+      })
+      .addCase(createOs.fulfilled, (state, action) => {
+        state.success = true;
+        state.error = null;
+        state.loading = false;
+        state.message = action.payload.message;
+        if(action.payload.os){
+          console.log("Resultado da OS:", action.payload.os);
+          state.data.push(action.payload.os);
+        }
+      })
+      .addCase(createOs.rejected, (state, action) => {
+        state.success = false;
+        state.error = { message: action.payload?.errors[0] || "Erro Desconhecido." };
+        state.loading = false;
+        state.message = null;
       })
       // Update data about OS.
       .addCase(updateOsDetails.pending, (state) => {

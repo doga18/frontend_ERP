@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { SiWhatsapp } from '@icons-pack/react-simple-icons'
 import { UserPlusIcon } from '@heroicons/react/24/solid'
 
+// Importando as configurações de api
+import { uploads } from '../../utils/config'
+
 // import {
 //   Card,
 //   CardHeader,
@@ -80,6 +83,8 @@ const Clients = () => {
       setNameAtendente(user.name);
     }
   }, [user])
+
+  console.log("clientsRows", clientsRows);
   
   return (
     <>
@@ -91,7 +96,7 @@ const Clients = () => {
             </div>
           </div>
         ):(
-                  <div className="bg-amber-900 w-full min-h-screen p-3 flex flex-col">
+                  <div className="shadow-lg bg-transparent w-full min-h-screen p-3 flex flex-col">
           <div className="bg-white shadow-md rounded-lg p-4 text-gray-950 overflow-auto flex-1">
             <h2 className="text-xl font-semibold mb-4">Lista de Clientes</h2>
             <table className="min-w-full">
@@ -106,10 +111,27 @@ const Clients = () => {
                 </tr>
               </thead>
               <tbody className='bg-gray-100'>
-                {clientsRows.map((client, index) => (
-                  <tr key={index} className="hover:bg-gray-200 cursor-pointer">
+                {clientsRows && clientsRows.map((client) => (
+                  <tr key={client.clientId} className="hover:bg-gray-200 cursor-pointer">
                     <td className="py-2 px-4 border-b">
-                      {client.name}
+                      <div className="flex flex-row items-center justify-center">
+                        <span className="mr-2">
+                          {client.name}
+                        </span>
+                        {client.files && client.files.length > 0 && client.files[0].fileName ? (
+                          <img
+                            src={`${uploads}/${client.files[0].fileName}`}
+                            alt={`Imagem do cliente de nome ${client.name}`}
+                            className="w-8 h-8 rounded-full"
+                          />
+                        ) : (
+                          <img
+                            src={`${uploads}/default.png`}
+                            alt="Imagem padrão"
+                            className="w-8 h-8 rounded-full"
+                          />
+                        )}
+                      </div>
                     </td>
                     <td className="py-2 px-4 border-b">
                       {client.lastname ? client.lastname : 'Não informado'}

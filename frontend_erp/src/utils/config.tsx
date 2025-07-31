@@ -1,5 +1,6 @@
 export const api = 'http://localhost:3001/api';
 export const uploads = 'http://localhost:3001/uploads';
+export const uploadsOs = 'http://localhost:3001';
 export const hostfile = 'http://localhost:3001';
 export const files = 'http://localhost:3001/files';
 export const apiCep = 'https://viacep.com.br/ws/'
@@ -15,18 +16,55 @@ interface Clients {
   cpf: string;
 }
 
+// Exportando função que retorna o CEP.
+interface CepResponse {
+  cep: string;
+  logradouro: string;
+  complemento: string;
+  unidade: string;
+  bairro: string;
+  localidade: string;
+  uf: string;
+  estado: string;
+  regiao: string;
+  ibge: string;  
+  gia: string;
+  ddd: string;
+  siafi: string;
+  erro?: boolean;
+}
+
+// Função para transformar um objeto em um formData
+export function toFormData<T extends object>(data: T): FormData {
+  const formData = new FormData();
+  for (const key in data) {
+    const value = data[key as keyof T];
+    if (value !== undefined && value !== null) {
+      if (value instanceof File || value instanceof Blob) {
+        formData.append(key, value);
+      } else if (Array.isArray(value)) {
+        value.forEach((v) => {
+          formData.append(key, String(v));
+        });
+      } else {
+        formData.append(key, String(value)); // converte qualquer valor primitivo para string
+      }
+    }
+  }
+  return formData;
+}
+
 // Exportando a função que retorna o horário local formatado.
   // Convertendo datas e horas
-  export const formatDateTimeLocal = (dateString: string) => {
-    const date = new Date(dateString);
+export const formatDateTimeLocal = (dateString: string) => {
+  const date = new Date(dateString);
 
-    const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16); // Formato YYYY-MM-DDTHH:mm
+  const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16); // Formato YYYY-MM-DDTHH:mm
 
-    return localTime;
-  };
-
+  return localTime;
+};
 // Exportando função que retorna o token.
 export const getToken = () => {
   try {
@@ -48,25 +86,7 @@ export const getToken = () => {
     return null;
   }
 }
-
-// Exportando função que retorna o CEP.
-interface CepResponse {
-  cep: string;
-  logradouro: string;
-  complemento: string;
-  unidade: string;
-  bairro: string;
-  localidade: string;
-  uf: string;
-  estado: string;
-  regiao: string;
-  ibge: string;  
-  gia: string;
-  ddd: string;
-  siafi: string;
-  erro?: boolean;
-}
-
+// Função para pegar dados do CEP.
 export const getCep = async (cep: string): Promise<CepResponse | null> => {
   if(cep.length > 8) return null;
   const response = await fetch(`${apiCep}${cep}/json`);  
@@ -78,7 +98,6 @@ export const getCep = async (cep: string): Promise<CepResponse | null> => {
   }
   return null;
 };
-
 // Exportando função que retorna a lista de clientes.
 export const getListClients = async (namePart: string, idCompany: string): Promise<responseListClients | undefined> => {
   if(namePart.length <= 2) return {clients: []};
@@ -93,11 +112,10 @@ export const getListClients = async (namePart: string, idCompany: string): Promi
     return response.json();
   }
 }
-
 // Exportando função que retorna a configuração da requisição.
-export const requestConfig = (
+export const requestConfig = <T extends object | FormData> (
   method: string,
-  data: any = null,
+  data: T | null = null,
   token: string | null = null,
   // id: string | null = null
 ): RequestInit => {

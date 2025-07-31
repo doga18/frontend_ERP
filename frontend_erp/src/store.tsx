@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import osReducer from './slices/osSlice';
 import clientReducer from './slices/clientesSlice';
+import summaryReducer from './slices/dataResumeSlice'
 // import userReducer from './slices/userSlice';
 // import companyReducer from './slices/companySlice';
 // import companyDetailReducer from './slices/companyDetailsSlice';
@@ -16,6 +17,7 @@ export const store = configureStore({
   auth: authReducer,
   os: osReducer,
   client: clientReducer,
+  summaryResume: summaryReducer,
   // company: companyReducer,
   // companyDetail: companyDetailReducer,
   // user: userReducer,

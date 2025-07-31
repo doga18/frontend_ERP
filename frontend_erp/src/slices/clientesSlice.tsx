@@ -1,35 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import type { PayloadAction } from "@reduxjs/toolkit";
-
 import clientsService from '../services/clientesService';
-
-import type { newClientData } from '../interfaces/ClientsInterface';
-
-interface ClientData {
-  clientId: number
-  name: string
-  lastname: string
-  email: string
-  password?: string
-  contact: string
-  contact_2?: string
-  address?: string
-  city?: string
-  state?: string
-  country?: string
-  zipCode?: string
-  assignedTo: number
-  createdAt?: string
-  updatedAt?: string
-  message?: string
-}
+import type { newClientData, ClientDataUnique } from '../interfaces/ClientsInterface';
+// import type { toFormData } from '../utils/config';
 
 interface ResponseClientsCount {
   count: number
-  rows: ClientData[]
+  rows: ClientDataUnique[]
   loading: boolean
   errors?: string[] | null
   updated: boolean
+  searchClients: ClientDataUnique[]
 }
 
 interface ResponseErrorClientsCount {
@@ -41,7 +22,8 @@ const initialState: ResponseClientsCount = {
   rows: [],
   loading: false,
   errors: null,
-  updated: false
+  updated: false,
+  searchClients: [],
 };
 
 // Slices de Clients
@@ -64,14 +46,34 @@ export const getAllClientCount = createAsyncThunk<
     }
   }
 )
+// Get client byname
+export const searchClientByName = createAsyncThunk<
+  ClientDataUnique[],
+  string,
+  { rejectValue: ResponseErrorClientsCount }
+>(
+  "clients/searchClientByName",
+  async(name: string, thunkAPI) => {
+    try {
+      const response = await clientsService.searchClientByName(name);
+      return response;
+    } catch (error: unknown) {
+      console.log(error);
+      return thunkAPI.rejectWithValue({
+        errors: ["Erro Desconhecido."],
+      });
+    }
+  }
+)
 // New Client
 export const newClient = createAsyncThunk<
-  ClientData,
+  ClientDataUnique,
   newClientData,
   { rejectValue: ResponseErrorClientsCount }
   >(
   "clients/newClient",
   async (data: newClientData, thunkAPI) => {
+    // Convertando a data para um form data para ser enviado...
     try {
       const response = await clientsService.newClient(data);
       return response;
@@ -83,6 +85,7 @@ export const newClient = createAsyncThunk<
     }
   }
 )
+
 
 // Criando o Slice
 const clientsSlice = createSlice(({
@@ -127,6 +130,20 @@ const clientsSlice = createSlice(({
         }, 5000);
       })
       .addCase(newClient.rejected, (state, action) => {
+        if(!action.payload) return;
+        if(action.payload.errors) state.errors = action.payload.errors;
+        state.loading = false;
+      })
+      .addCase(searchClientByName.pending, (state) => {
+        state.loading = true;
+        state.errors = null;
+        state.searchClients = [];
+      })
+      .addCase(searchClientByName.fulfilled, (state, action) => {
+        state.loading = false;
+        state.searchClients = action.payload;
+      })
+      .addCase(searchClientByName.rejected, (state, action) => {
         if(!action.payload) return;
         if(action.payload.errors) state.errors = action.payload.errors;
         state.loading = false;

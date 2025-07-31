@@ -24,9 +24,10 @@ import type { OsDetailsInterface } from '../../interfaces/OsDetailsInterface';
 
 // Pages
 import OsDetails from './OsDetails';
+import NewOs from './NewOs';
 
 interface Props {
-  setCountOs: (count: number) => void;
+  setCountOs?: (count: number) => void;
 }
 
 const Os = ({ setCountOs } : Props) => {
@@ -39,6 +40,7 @@ const Os = ({ setCountOs } : Props) => {
   const [termSearch, setTermSearch] = useState<string>('');
   // Modal control
   const [modalOsDetails, setModalOsDetails] = useState<boolean>(false)
+  const [modalOsNew, setModalOsNew] = useState<boolean>(false)
   const [selectedOs, setSelectedOs] = useState<OsDetailsInterface | null>(null);
 
   // Funções
@@ -71,23 +73,13 @@ const Os = ({ setCountOs } : Props) => {
     }
   }
   // Controles de pesquisa
+  const searchFactory = (term: string) => {
+    const isNumeric  = !isNaN(Number(term));
+    return isNumeric ? searchById_number(term) : searchByText(term);
+  }
   const handleSearch = () => {
-  if (termSearch === '') {
-    alert('Por favor, insira um termo de busca');
-    return;
-  }
-
-  // Verifica se é numérico SEM converter o valor original
-  const isNumeric = !isNaN(Number(termSearch)) && !isNaN(parseFloat(termSearch));
-
-  if (isNumeric) {
-    console.log('Termo de busca é um número (mas mantido como string), buscando por ID.');
-    console.log('Tipo da variável:', typeof termSearch); // "string" (ex: '0001')
-    searchById_number(termSearch); // Busca por ID (envia '0001' como string)
-  } else {
-    console.log('Termo de busca é texto, buscando por texto.');
-    searchByText(termSearch); // Busca por texto (não precisa do .toString())
-  }
+    if(!termSearch) return alert('Por favor, insira um termo de busca');
+    searchFactory(termSearch);
 };
 
   const searchById_number = (id: string) => {
@@ -98,27 +90,15 @@ const Os = ({ setCountOs } : Props) => {
     console.log('Text recebido para busca é: ' + text);
     dispatch(getOsByArgumentsString({ searchTerm: text }));
   }
-
-  // const searchByUUID = (uuid: string) => {
-  //   console.log('UUID recebido para busca é: ' + uuid);
-  //   dispatch(getOsById({ searchTerm: uuid }));
-  // }
-
-  // // Montando o Modal para exibir os detalhes da OS
-  // const handleOsDetailsModal = (uuid: string) => {
-  //   console.log('UUID recebido para exibir os detalhes da OS é: ' + uuid);
-  // }
-
-  // UseEffect
   useEffect(() => {
-    dispatch(getAllOsWithLimitAndPage({ page: currentPage, limit: 5 }));
+    dispatch(getAllOsWithLimitAndPage({ page: currentPage, limit: 15 }));
   }, [dispatch, currentPage])
 
   useEffect(() => {
     if(totalOs && dataOs){
       console.log("o total de os: " + totalOs);
       console.log("o total de páginas é de : " + totalPagesOs);
-      setCountOs(totalOs);
+      setCountOs?.(totalOs);
       setTotal(totalOs);
       setTotalPages(totalPagesOs);
       setcurrentPage(currentPageOs);
@@ -145,7 +125,11 @@ const Os = ({ setCountOs } : Props) => {
               Pesquisar
             </button>
           </div>
-          <button className="bg-blue-500 text-white rounded-lg px-4 py-2 ml-4 hover:bg-blue-600">
+          <button className="bg-blue-500 text-white rounded-lg px-4 py-2 ml-4 hover:bg-blue-600"
+            onClick={() => {
+              setModalOsNew(true)
+
+            }}>
             Criar Nova OS
           </button>
         </div>
@@ -222,16 +206,7 @@ const Os = ({ setCountOs } : Props) => {
                       </td>
                     </tr>
                   )}
-                  {selectedOs && (
-                    <OsDetails
-                      os={selectedOs}
-                      isOpen={modalOsDetails}
-                      onClose={() => {
-                        setModalOsDetails(false);
-                        dispatch(getAllOsWithLimitAndPage({ page: currentPage, limit: 10 }));
-                      }}
-                    />
-                  )}
+                  
                 </tbody>            
               </table>
             </div>
@@ -262,6 +237,19 @@ const Os = ({ setCountOs } : Props) => {
                   Próxima
                 </button>
             </div>
+            {selectedOs && (
+                    <OsDetails
+                      os={selectedOs}
+                      isOpen={modalOsDetails}
+                      onClose={() => {
+                        setModalOsDetails(false);
+                        dispatch(getAllOsWithLimitAndPage({ page: currentPage, limit: 10 }));
+                      }}
+                    />
+                  )}
+            {modalOsNew && <NewOs isOpen={modalOsNew} onClose={() => {
+              setModalOsNew(false)
+            }} />}
           </>
         )}
         

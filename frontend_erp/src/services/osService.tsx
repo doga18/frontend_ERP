@@ -1,18 +1,8 @@
 import { api, requestConfig, getToken } from "../utils/config";
+import type { newOsInterface, OsUpdateInterface } from "../interfaces/OsDetailsInterface";
 
 // Get Token to send
 const token = getToken();
-
-// Interfaces
-export interface OsUpdateInterface {
-  osId: string;
-  description?: string;
-  status?: string;
-  priority?: string;
-  budget?: string;
-  discount?: string;
-  updatedAt?: string;
-}
 
 // Funções
 const getAllOs = async () => {
@@ -85,6 +75,20 @@ const getOsById = async (uuid: string) => {
   }
 }
 
+// Criando uma nova OS
+const newOs = async (FormData: FormData) => {
+  const config = requestConfig<newOsInterface | FormData>("POST", FormData, token);
+  try {
+    const res = await fetch(`${api}/os`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err));
+    return res;
+  } catch (error) {
+    console.error('Erro ao criar nova OS:', error);
+    throw new Error("Erro na API, ao criar nova OS.");
+  }
+}
+
 // Editando OS.
 const updateOsDetails = async (data: OsUpdateInterface) => {
   const config = requestConfig("PUT", data, token);
@@ -105,6 +109,7 @@ const osService = {
   getAllOsWithLimitAndPage,
   getOsById_number,
   getOsByArgumentsString,
+  newOs,
   updateOsDetails
 }
 

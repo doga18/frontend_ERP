@@ -79,6 +79,7 @@ const NewClient = ( { isOpen, onClose }: Props) => {
   const [dataResponseCep, setDataResponseCep] = useState<responseCep>({} as responseCep)
   const [errorsForm, setErrorsForm] = useState<ErrorsType>({} as ErrorsType)
 
+
   // Controllers of page
   const [lockOfCountry, setLockOfCountry] = useState<boolean>(true)
 
@@ -173,7 +174,7 @@ const NewClient = ( { isOpen, onClose }: Props) => {
 
   return (
     <section>
-      <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      <Dialog open={isOpen} onClose={() => {}} className="relative z-50">
         <DialogBackdrop className="fixed inset-0 bg-black/30" transition>
           <div className="fixed inset-0 z-10 w-screen h-screen overflow-y-auto items-center justify-center">
 
@@ -681,14 +682,14 @@ const NewClient = ( { isOpen, onClose }: Props) => {
                   </div>
 
                   <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm/6 font-semibold text-amber-50 hover:text-red-400 transition ease-in duration-300" onClick={() => onClose()}>
+                    <button type="button" className="text-sm/6 font-semibold text-white bg-red-500 py-2 px-4 rounded hover:bg-red-700 hover:scale-105 transition ease-in-out duration-300" onClick={() => onClose()}>
                       Cancel
                     </button>
                     {!loading ? (
                       <>
                         <button
                           type="submit"
-                          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:text-green-500 shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                          className="text-sm/6 font-semibold text-white bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 hover:scale-105 transition ease-in-out duration-300"
                         >
                           Salvar
                         </button>
@@ -697,7 +698,7 @@ const NewClient = ( { isOpen, onClose }: Props) => {
                       <>
                         <button
                           type="submit"
-                          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:text-green-500 shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                          className="text-sm/6 font-semibold text-white bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 hover:scale-105 transition ease-in-out duration-300"
                           disabled
                         >
                           Salvando...

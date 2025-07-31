@@ -10,6 +10,10 @@ import type { AppDispatch } from '../../store';
 import { 
   updateOsDetails
 } from '../../slices/osSlice';
+// Importando a API para linkar as imagens
+import { uploadsOs } from '../../utils/config';
+// Pages
+import DetailsImage from './DetailsImage';
 
 // Interface de atualização
 interface UpdateOsDetailsInterface {
@@ -20,6 +24,13 @@ interface UpdateOsDetailsInterface {
   budget?: string;
   discount?: string;
   updatedAt?: string;
+  // Montando uma coluna que carregará arquivos de imagens
+  image?: FileList[];
+}
+
+interface OsFiles {
+  fileName: string;
+  fileUrl: string;
 }
 
 // Interfaces
@@ -43,14 +54,19 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
   const [createdDateAt, setCreatedDateAt] = useState<string>('2020-01-01T00:00:00.000Z');
   const [updatedDateAt, setUpdatedDateAt] = useState<string>('2020-01-01T00:00:00.000Z');
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
+  // montando um usestate para receber uma lista de arquivos de imagens
+  const [image, setImage] = useState<FileList | null>(null);
+  const [imageUrls, setImageUrls] = useState<{ fileName: string; fileUrl: string }[]>({} as { fileName: string; fileUrl: string }[]);
+  const [imageHover, setImageHover] = useState<number | null>(null);
+  const [ImageSelected, setImageSelected] = useState<string | null>(null)
+  const [imageModalDetails, setImageModalDetails] = useState<boolean>(false)
 
+  console.log('ImageHoverIndex: ' + imageHover);
+  console.log('Seleteced', ImageSelected);
   // Uso do dispatch
   const dispatch: AppDispatch = useDispatch();
-
-
-
   console.log("ID da OS: " + os?.osId);
-  console.log("O valor de isOp")
+  console.log("O valor de isOp: " + imageModalDetails);
   // funções
   const handleForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -81,14 +97,11 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
     console.log('Dados montados para atualização da OS:', osDataUpdate);
     // console.log('Tentativa de atualização da OS:', tentativa);
   }
-
-  
   const [clientName, setClientName] = useState('');
   const handleAddNewClient = () => {
     // Lógica para abrir um modal/formulário de criação de cliente
     console.log('Abrir modal para criar novo cliente');
   };
-
   // UseEffetcs
   useEffect(() => {
     if(os){
@@ -100,6 +113,17 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
       setDiscountOsNow(os.discount || '0');
       setCreatedDateAt(formatDateTimeLocal(os.createdAt));
       setUpdatedDateAt(formatDateTimeLocal(os.updatedAt));
+      // adicioando a lista de imagens
+      if(os?.files){
+        setImageUrls(
+          os.files.map((i: OsFiles) => {
+            return {
+              fileName: i.fileName,
+              fileUrl: i.fileUrl
+            }
+          })
+        )
+      }
     }
   }, [os])
   // Calculando o valor final da OS
@@ -111,7 +135,7 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
   }, [budgetOs, discountOsNow]);
   return (
     <>
-      <Dialog open={isOpen} onClose={onClose} className="relative z-10">
+      <Dialog open={isOpen} onClose={() => {}} className="relative z-10">
         <DialogBackdrop className="fixed inset-0 bg-black/30"
           transition
         />
@@ -363,12 +387,12 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
                                 htmlFor="file-upload"
                                 className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:outline-hidden hover:text-indigo-500"
                               >
-                                <span>Upload a file</span>
+                                <span>Faça o upload</span>
                                 <input id="file-upload" name="file-upload" type="file" className="sr-only" />
                               </label>
-                              <p className="pl-1">or drag and drop</p>
+                              <p className="pl-1">ou arraste e solte</p>
                             </div>
-                            <p className="text-xs/5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                            <p className="text-xs/5 text-gray-600">PNG, JPG, GIF de no máximo 10MB</p>
                           </div>
                         </div>
                       </div>
@@ -379,18 +403,9 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
                           >
                             Cliente Vinculado
                         </label>
-                        <div className="mt-2">
-                          <input
-                            id="client-input"
-                            type="text"
-                            value={clientName}
-                            onChange={(e) => setClientName(e.target.value)}
-                            placeholder="Digite o nome do cliente..."
-                            className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          <button
+                        <button
                             onClick={handleAddNewClient}
-                            className="absolute inset-y-0 right-0 flex items-center justify-center px-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="inset-y-0 right-0 flex items-center justify-center px-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             aria-label="Adicionar novo cliente"
                           >
                             <svg
@@ -406,7 +421,44 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
                               />
                             </svg>
                           </button>
+                        <div className="mt-2">
+                          <input
+                            id="client-input"
+                            type="text"
+                            value={clientName}
+                            onChange={(e) => setClientName(e.target.value)}
+                            placeholder="Digite o nome do cliente..."
+                            className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-b border-gray-900/10 pb-12 mt-4">
+                    <div className="mt-2 col-span-full text-center">
+                      <span className="text-gray-900">
+                        Fotos do equipamento quando foi entregue...
+                      </span>
+                      <div className="mt-3 flex justify-center itens-center ">
+                        {imageUrls && imageUrls.length > 0 ? (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {imageUrls.map((url, index) => (
+                            <img
+                              key={index}
+                              src={`${uploadsOs}/${url.fileUrl}`}
+                              alt={`Foto ${index + 1}`}
+                              className="h-24 w-24 object-cover cursor-pointer hover:scale-150 transition-transform duration-300 ease-in-out"
+                              onClick={() => {
+                                setImageSelected(url.fileUrl);
+                                setImageModalDetails(true);
+                              }}
+                            />
+                          ))}
+                        </div>
+                      ): (
+                        <span className="text-gray-600">Nenhuma foto disponível.</span>
+                      )}
                       </div>
                     </div>
                   </div>
@@ -415,14 +467,14 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
                 <div className="mt-6 flex items-center justify-end gap-x-6">
                   <button
                     type="button"
-                    className="text-sm/6 font-semibold text-white"
+                    className="text-sm/6 font-semibold text-white bg-red-500 py-2 px-4 rounded hover:bg-red-700 hover:scale-105 transition ease-in-out duration-300"
                     onClick={onClose}
                     >
                     Fechar
                   </button>
                   <button
                     type="submit"
-                    className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    className="text-sm/6 font-semibold text-white bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 hover:scale-105 transition ease-in-out duration-300"
                   >
                     {isUpdating ? 'Atualizando...' : 'Atualizar'}
                   </button>
@@ -431,8 +483,14 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
               </form>
             </div>
           </DialogPanel>
-        </div>
+        </div>        
       </Dialog>
+      {/* modals */}
+      {ImageSelected && ImageSelected.length > 0 && (
+        <DetailsImage isOpen={imageModalDetails} onClose={() => {
+          setImageModalDetails(false)
+        }} name={ImageSelected} url={`${uploadsOs}/${ImageSelected}`} />
+      )}
     </>
     
   )

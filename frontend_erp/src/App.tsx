@@ -9,6 +9,8 @@ import Login from "./pages/auth/Login.tsx";
 import Register from "./pages/auth/Register.tsx";
 import Home from "./pages/home/Home.tsx";
 import Clients from "./pages/client/Clients.tsx";
+import Os from "./pages/os/Os.tsx";
+import Admin from "./pages/admin/Admin.tsx";
 // import { About } from './pages/About';
 
 // Importando os layout dependendo da autenticação do usuário /// Pages
@@ -31,6 +33,22 @@ function App() {
                 element={
                   <MainLayout >
                     <Home />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/os"
+                element={
+                  <MainLayout >
+                    <Os />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <MainLayout >
+                    <Admin />
                   </MainLayout>
                 }
               />
