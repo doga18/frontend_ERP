@@ -55,13 +55,12 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
   const [updatedDateAt, setUpdatedDateAt] = useState<string>('2020-01-01T00:00:00.000Z');
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
   // montando um usestate para receber uma lista de arquivos de imagens
-  const [image, setImage] = useState<FileList | null>(null);
   const [imageUrls, setImageUrls] = useState<{ fileName: string; fileUrl: string }[]>({} as { fileName: string; fileUrl: string }[]);
-  const [imageHover, setImageHover] = useState<number | null>(null);
+  //const [imageHover, setImageHover] = useState<number | null>(null);
   const [ImageSelected, setImageSelected] = useState<string | null>(null)
   const [imageModalDetails, setImageModalDetails] = useState<boolean>(false)
 
-  console.log('ImageHoverIndex: ' + imageHover);
+  //console.log('ImageHoverIndex: ' + imageHover);
   console.log('Seleteced', ImageSelected);
   // Uso do dispatch
   const dispatch: AppDispatch = useDispatch();
@@ -114,7 +113,7 @@ const OsDetails = ({os, isOpen, onClose}: props) => {
       setCreatedDateAt(formatDateTimeLocal(os.createdAt));
       setUpdatedDateAt(formatDateTimeLocal(os.updatedAt));
       // adicioando a lista de imagens
-      if(os?.files){
+      if(Array.isArray(os.files)) {
         setImageUrls(
           os.files.map((i: OsFiles) => {
             return {

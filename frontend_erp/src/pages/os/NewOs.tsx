@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 // import { formatDateTimeLocal } from '../../utils/config';
-import type { OsDetailsInterface, newOsInterface } from "../../interfaces/OsDetailsInterface";
+// import type { OsDetailsInterface, newOsInterface } from "../../interfaces/OsDetailsInterface";
 import type { ClientDataUnique } from "../../interfaces/ClientsInterface";
 import { PhotoIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 // Importando Redux and slices
@@ -17,7 +17,7 @@ import {
 } from "../../slices/clientesSlice";
 import { createOs } from "../../slices/osSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import type { AppDispatch, RootState } from "../../store";
 
 // Import Pages
 import NewClient from "../client/NewClient";

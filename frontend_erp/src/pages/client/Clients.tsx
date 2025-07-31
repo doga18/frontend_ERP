@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import /*React,*/ { useEffect, useState } from 'react'
 
 // Imports Icons
 import { SiWhatsapp } from '@icons-pack/react-simple-icons'
 import { UserPlusIcon } from '@heroicons/react/24/solid'
 
 // Importando as configurações de api
-import { uploads } from '../../utils/config'
+// import { uploads } from '../../utils/config'
 
 // import {
 //   Card,
@@ -21,7 +21,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getAllClientCount } from '../../slices/clientesSlice';
 
 // Imports about interfaces
-import type { listAllClients, ClientDataUnique } from '../../interfaces/ClientsInterface';
+// import type { listAllClients, ClientDataUnique } from '../../interfaces/ClientsInterface';
 
 // Imports trataments of dispatch
 import type { AppDispatch, RootState } from '../../store';
@@ -38,7 +38,7 @@ const Clients = () => {
   const dispatch = useDispatch<AppDispatch>();
   
   // UseStates
-  const [listClients, setListClients] = useState<ClientDataUnique[]>([])
+  //const [listClients, setListClients] = useState<ClientDataUnique[]>([])
   const [loading, setLoading] = useState<boolean>(false);
   const [errorsPage, setErrorsPage] = useState<string[] | null>(['']);
   const [nameAtendente, setNameAtendente] = useState<string>('')
@@ -66,7 +66,7 @@ const Clients = () => {
   // UseEffect's
   useEffect(() => {
     if(countClients > 0){
-      setListClients(clientsRows);
+      // setListClients(clientsRows);
       setLoading(clientsLoading);
     }
     if(clientsErrors){
@@ -118,7 +118,7 @@ const Clients = () => {
                         <span className="mr-2">
                           {client.name}
                         </span>
-                        {client.files && client.files.length > 0 && client.files[0].fileName ? (
+                        {/* {client.files && client.files.length > 0 && client.files[0].fileName ? (
                           <img
                             src={`${uploads}/${client.files[0].fileName}`}
                             alt={`Imagem do cliente de nome ${client.name}`}
@@ -130,7 +130,7 @@ const Clients = () => {
                             alt="Imagem padrão"
                             className="w-8 h-8 rounded-full"
                           />
-                        )}
+                        )} */}
                       </div>
                     </td>
                     <td className="py-2 px-4 border-b">

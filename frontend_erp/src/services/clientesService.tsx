@@ -23,7 +23,7 @@ const countAllClients = async () => {
 }
 // SearchClientByName
 const searchClientByName = async (name: string) => {
-  const config = requestConfig("GET", name, token)
+  const config = requestConfig("GET", null, token)
   try {
     console.log(`Pesquisando pelo nome: ${name}`)
     const rest = await fetch(`${api}/clients/searchClients?name=${name}`, config)

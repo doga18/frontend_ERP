@@ -7,13 +7,13 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Redux
 import { useSelector, useDispatch } from 'react-redux';
-import { loginUser } from '../../slices/authSlice';
+import { loginUser } from '../slices/authSlice';
 
-import Message from '../../components/Message';
+import Message from '../components/Message';
 
 // Importando o tratamento do dispath.
 
-import { AppDispatch } from '../../store';
+import type { AppDispatch, RootState } from '../store';
 
 //type Props = {}
 
@@ -24,13 +24,15 @@ const Register = () => {
   
 
   // Status da page
-  const [errors, setErrors] = useState('');
+  const [errors, setErrors] = useState<string | null>(null);
   const [mensagens, setMensagens] = useState('');
 
   // 
   const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
-  const { error: AuthError, user: AuthUser, isLoading: AuthLoading, success: AuthSuccess, message} = useSelector((state: any) => state.auth);
+  const { 
+    error: AuthError, user: AuthUser, /* isLoading: AuthLoading, */ success: AuthSuccess 
+  } = useSelector((state: RootState) => state.auth);
 
   // Funções!
   // Verificação se a senha cumpre os requisitos mínimos.
@@ -45,7 +47,7 @@ const Register = () => {
     return true;
   }
   // Lidar com o envio do formulário
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     //console.log('tentativa de envio de formulário'  );
 
@@ -96,7 +98,7 @@ const Register = () => {
       // navigate('/login', { replace: true });
     }
     if(AuthError) {
-      setErrors(AuthError);
+      setErrors(AuthError.message || 'Erro desconhecido ao tentar efetuar o login.');
     }
   }, [AuthSuccess, AuthError, AuthUser, navigate]);
 
