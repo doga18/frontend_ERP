@@ -108,14 +108,14 @@ const Os = ({ setCountOs } : Props) => {
   }, [total, totalOs, totalPagesOs, currentPageOs, dataOs, setCountOs]);
 
   return (
-    <div>
+    <div className='mt-6 px-5'>
       {/* Seção de Pesquisa e Botão de Criar OS */}
         <div className="flex tems-center mb-6 justify-between gap-4 w-full">
           <div className="flex flex-1 w-1/2">
             <input
               type="text"
               placeholder="Pesquisar Ordens de Serviço..."
-              className="border border-gray-300 rounded-lg p-2 w-1/2 flex"
+              className="border border-gray-300 rounded-lg p-2 w-1/2 flex text-gray-900 font-semibold bg-amber-50 font-[18px] focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => setTermSearch(e.target.value)}
             />
             <button
@@ -147,10 +147,10 @@ const Os = ({ setCountOs } : Props) => {
         ) : (
           <>
             <div className="bg-white shadow-md rounded-lg p-4 text-gray-950 overflow-auto">
-              <h2 className="text-xl font-semibold mb-4">Lista de Ordens de Serviço</h2>
-              <table className="min-w-full ">
+              <h2 className="text-xl font-semibold mb-4 text-indigo-700">Lista de Ordens de Serviço</h2>
+              <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
                 <thead>
-                  <tr className="bg-gray-200">
+                  <tr className="bg-indigo-700 text-white">
                     <th className="py-2 px-4 text-left">OS</th>
                     <th className="py-2 px-4 text-left">Título</th>
                     <th className="py-2 px-4 text-left">Descrição</th>
@@ -163,39 +163,39 @@ const Os = ({ setCountOs } : Props) => {
                     <th className="py-2 px-4 text-left">Ações</th>
                   </tr>
                 </thead>
-                <tbody className='bg-gray-100'>
+                <tbody>
                   {allOs && allOs.length > 0 ? (
                     allOs.map((os, index) => (
-                      // Criando um link para poder analisar a OS detalhadamente
-                      <tr key={index} className='items-center align-middle'>
-                        <td className="py-2 px-4 border-b" title={`UUID: ${os.osId}`}>{os.os_number}</td>
+                      <tr
+                        key={index}
+                        className={`${index % 2 === 0 ? "bg-indigo-50" : "bg-white"} hover:bg-indigo-100 transition`}
+                      >
+                        <td className="py-2 px-4 border-b">{os.os_number}</td>
                         <td className="py-2 px-4 border-b">
                           {os.title.split(' ').slice(0, 3).join(' ')}...
                         </td>
                         <td className="py-2 px-4 border-b">
                           {os.description.split(' ').slice(0, 3).join(' ')}...
                         </td>
-                        <td className="py-2 px-4 border-b" title={os.status}>{os.status.split(' ').slice(0, 1).join(' ')}...</td>
+                        <td className="py-2 px-4 border-b">{os.status.split(' ')[0]}...</td>
                         <td className="py-2 px-4 border-b">{os.priority}</td>
                         <td className="py-2 px-4 border-b">{os.clientAssigned?.name || 'N/A'}</td>
                         <td className="py-2 px-4 border-b">R$: {os.budget}</td>
-                        <td className="py-2 px-4 border-b">
-                          <input type="datetime-local" value={formatDateTimeLocal(os.createdAt)} disabled />
-                        </td>
-                        <td className="py-2 px-4 border-b">
-                          <input type="datetime-local" value={formatDateTimeLocal(os.updatedAt)} disabled />
-                        </td>
-                        <td className="py-3 border-b flex">
+                        <td className="py-2 px-4 border-b">{formatDateTimeLocal(os.createdAt)}</td>
+                        <td className="py-2 px-4 border-b">{formatDateTimeLocal(os.updatedAt)}</td>
+                        <td className="py-2 px-4 border-b flex gap-2">
                           <button
-                            className="text-white  hover:underline ml-2"
+                            className="bg-[#7b2d26] hover:bg-[#5c1f1a] text-white px-3 py-1 rounded"
                             onClick={() => {
                               setSelectedOs(os);
                               setModalOsDetails(true);
                             }}
-                            >
+                          >
                             Editar
                           </button>
-                          <button className="text-red-500 hover:underline ml-2">Excluir</button>
+                          <button className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded">
+                            Excluir
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -206,13 +206,13 @@ const Os = ({ setCountOs } : Props) => {
                       </td>
                     </tr>
                   )}
-                  
-                </tbody>            
+                </tbody>
               </table>
             </div>
-            <div className="flex justify-center items-center mt-4">
+
+            <div className="flex justify-center items-center mt-4 text-[24px] font-extralight">
               <button
-                className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50'
+                className='bg-blue-500  text-gray-200 mx-2 px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-75'
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1} // Desabilita se estiver na primeira página
                 >
@@ -230,7 +230,7 @@ const Os = ({ setCountOs } : Props) => {
                   ))}
                 </div>
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                  className="bg-blue-500 mx-2 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages} // Desabilita se estiver na última página
                   >

@@ -9,7 +9,7 @@ const DashboardCard = ({title, value}: Props) => {
 
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transistion">
+    <div className="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition-all duration-300 ease-in-out">
       <h2 className="text-lg font-medium text-gray-600">
         {title}
       </h2>

@@ -11,7 +11,6 @@ interface RegisterUserResponse {
   email: string;
   password?: string;
 }
-
 const getToken = () => {
   try {
     if(localStorage.getItem('token')){      
@@ -30,6 +29,19 @@ const getToken = () => {
     console.log(error);
     console.log('Não foi possível localizar o token do usuário logado.');
     return null;
+  }
+}
+
+// Validação periódica do usuário logado.
+const validUserLogged = async () => {
+  const config = requestConfig("GET", null, getToken());
+  try {
+    const res = await fetch(`${api}/users/validUserLogged`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err))
+    return res
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -90,6 +102,7 @@ const logout = () => {
 
 // Export
 const authService = {
+  validUserLogged,
   register,
   login,
   logout,

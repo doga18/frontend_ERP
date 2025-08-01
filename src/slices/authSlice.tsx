@@ -1,30 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import { PayloadAction } from "@reduxjs/toolkit";
 import authService from "../services/authService";
-// import { AuthUserInterface } from "../interfaces/AuthSimpleInterface";
 
-// interface AuthUserInterface {
-//   userId: string;
-//   name: string;
-//   lastname: string;
-//   email: string;
-//   password: string;
-//   laspassword?: string;
-//   avaiable: boolean;
-//   hash_recover_password?: string;
-//   roleId: number;
-//   token: string;
-//   createdAt?: string;
-//   updatedAt?: string;
-// }
 interface UserState {
   // user: Record<string, any> | null;
   user: userData | null; // O usuário pode ser nulo inicialmente
   success: boolean;
   error?: { message: string } | null;
   isLoading: boolean;
+  authenticated?: boolean;
   message: string | null;
 }
 // Tipo de resposta
@@ -33,17 +17,10 @@ interface RegisterUserResponse {
   error?: string;
   message?: string;
 }
-// interface LoginErrorWithMessage {
-//   message: string;
-// }
 
 interface RegisterUserResponseError {
   errors: string;
 }
-
-// interface LoginUserResponse {
-//   token: string;
-// }
 
 interface userData {
   userId: number;
@@ -79,13 +56,17 @@ interface AuthUserInterface {
   token: string;
 }
 
-// message?: string
-
 interface newUserData {
   name: string;
   lastname: string;
   email: string;
   password?: string;
+}
+
+interface UserAuthenticaded {
+  message: string;
+  userId?: number;
+  error?: string;
 }
 
 // interface updateTimePasswordProps {
@@ -99,6 +80,7 @@ const initialState: UserState = {
   error: null,
   isLoading: false,
   message: null,
+  authenticated: false,
 };
 
 
@@ -172,6 +154,21 @@ export const registerUser = createAsyncThunk<
     }
   }
 );
+
+// Validando o usuário logado
+export const validUserLogged = createAsyncThunk<
+  UserAuthenticaded,
+  void,
+  { rejectValue: { errors: string[] } }
+>("auth/validUserLogged", async (_, thunkAPI) => {
+  try {
+    const response = await authService.validUserLogged();
+    return response;
+  } catch (error: unknown) {
+    console.error("Erro ao validar usuário:", error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+})
 // export const updateTimePassword = createAsyncThunk<
 //   // Tipos de sucesso, ou seja o que a API responde ao dar sucesso.
 //   { message: string },
@@ -240,6 +237,7 @@ const userSlice = createSlice({
         }
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.authenticated = false;
         state.isLoading = false;
         state.error = { message: action.payload?.errors || "Erro Desconhecido" };
         state.message = null;
@@ -253,7 +251,7 @@ const userSlice = createSlice({
         state.user = null;
         state.success = false;
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<LoginUserResponse >) => {
+      .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
         state.message = null;
@@ -280,6 +278,30 @@ const userSlice = createSlice({
         state.message = null;
         state.user = null;
         state.success = false;
+        state.authenticated = false;
+      })
+      // Validando o usuário logado.
+      .addCase(validUserLogged.pending, (state) => {
+        state.authenticated = false;
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(validUserLogged.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.message = null;
+        state.authenticated = true;
+        console.log('Payload do usuário autenticado:', action.payload);
+        if(action.payload && action.payload?.userId){
+          console.log('Payload do usuário autenticado:', action.payload);
+        }        
+      })
+      .addCase(validUserLogged.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = { message: action.payload?.errors[0] || "Erro Desconhecido" };
+        state.message = null;
+        state.authenticated = false;
       })
   }
 })

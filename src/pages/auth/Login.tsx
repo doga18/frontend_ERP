@@ -28,6 +28,7 @@ const Login = () => {
   const [password, setPassword] = useState<string>("");
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false);
   const [error, setError] = useState<string | null>();
+  const [messagePage, setMessagePage] = useState<{msg: string, type: 'success' | 'error' | 'info'} | undefined>(undefined);
   // Preparando o dispatch para usar o Redux
   const dispatch: AppDispatch = useDispatch();
   const {
@@ -81,9 +82,18 @@ const Login = () => {
     }
   }, [dispatch, AuthError, AuthUser, AuthLoading, AuthSuccess]);
 
+  useEffect(() => {
+    // Messages de loading da página...
+    setMessagePage({ msg: 'Realize o login para acessar o sistema', type: 'info' });
+    setTimeout(() => {
+      setMessagePage(undefined);
+    }, 300000);
+  }, [])
+
   return (
-    <div className="flex h-screen w-screen">
-      <Message msg="Basta realizar o login" type="info"/>
+    <div className="flex h-screen w-screen">      
+      {messagePage && <Message msg={messagePage.msg || ''} type={messagePage.type || 'info'} duration={2000} />}
+      
       {isLoadingPage && <Message msg="Carregando..." type="info"/>}
       {AuthSuccess && <Message msg="Login bem-sucedido, redirecionando..." type="success"/>}
       {error && (

@@ -24,11 +24,12 @@ const Message = ({ msg, type, duration = 5000 }: Props) => {
     <div
       className={`
         fixed top-6 right-6 z-50 px-6 py-3 rounded shadow-lg font-semibold transition-all
+        ease-in-out
         ${typeStyles[type]}
         ${show ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}
         duration-1350
       `}
-      style={{ minWidth: 200 }}
+      style={ msg.length > 50 ? { width: '400px' } : { width: 'auto' } }
     >
       <p>{msg}</p>
     </div>

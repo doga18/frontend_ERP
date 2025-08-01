@@ -24,6 +24,7 @@ const Register = () => {
   const [isLoadingPage, setisLoadingPage] = useState<boolean>(false);
   const [msgPage, setMsgPage] = useState<string>('')
   const [errors, setErrors] = useState<string[] | null>(null);
+  const [messagePage, setMessagePage] = useState<{msg: string, type: 'success' | 'error' | 'info'} | undefined>(undefined);
 
   // Preparando o dispatch para usar o Redux
   const dispatch: AppDispatch = useDispatch();
@@ -79,6 +80,15 @@ const Register = () => {
     console.log(response);
   }
 
+  useEffect(() => {
+    // Messages de loading da página...
+    setMessagePage({ msg: 'Insira seus dados para se cadastrar', type: 'info' });
+    setTimeout(() => {
+      setMessagePage(undefined);
+    }, 300000);
+  }, [])
+
+
   // Use Effects da página
   useEffect(() => {
     if(AuthError){
@@ -111,6 +121,7 @@ const Register = () => {
 
   return (
     <div className='flex h-screen w-screen'>
+      {messagePage && <Message msg={messagePage.msg || ''} type={messagePage.type || 'info'} duration={5000} />}
       {isLoadingPage && <Message type='info' msg="Aguarde..." />}
       {errors && <Message type='error' msg="Falha ao registrar, tente novamente." />}
       {msgPage && <Message type="success" msg={msgPage} duration={5000} /> }
@@ -124,10 +135,10 @@ const Register = () => {
           </img>
         </div>
       </div>
-      <div className="flex-1 flex items-center justify-center bg-indigo-900">
-        <div className="w-full max-w-md p-8 bg-indigo-600 rounded-lg shadow-lg flex flex-col gag-6">
+      <div className="flex-1 flex items-center justify-center bg-indigo-600">
+        <div className="w-full max-w-md p-8 bg-indigo-700 rounded-lg shadow-lg flex flex-col gag-6">
           <h1 className='text-3xl font-semibold text-white font-center'>Cadastre-se</h1>
-          <form onSubmit={handleRegister} className='flex flex-col gap-6 mt-10'>
+          <form onSubmit={handleRegister} className='flex flex-col gap-6 mt-10 font-semibold'>
             <input
               type="text"
               placeholder='Nome'

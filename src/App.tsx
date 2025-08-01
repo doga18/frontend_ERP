@@ -2,6 +2,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 // import { useAuth } from "./hooks/useAuth";
+import { PrivateRoute } from './components/PrivateRoute.tsx';
 
 // Pages Basics
 // import { Home } from './pages/home/Home';
@@ -30,6 +31,16 @@ function App() {
             <Routes>
               <Route
                 path="/"
+                element={
+                  <PrivateRoute>
+                    <MainLayout >
+                      <Home />
+                    </MainLayout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/home"
                 element={
                   <MainLayout >
                     <Home />

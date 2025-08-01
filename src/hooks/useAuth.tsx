@@ -1,16 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../store';
+
+// Slice para validar o usuário autenticado
+import { validUserLogged } from '../slices/authSlice';
+
 
 export const useAuth = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const {
+    user,
+    authenticated,
+    isLoading
+  } = useSelector((state: RootState) => state.auth);
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const [roleUser, setRoleUser] = useState<(string | number)[] | undefined>(undefined);
   const [userLoggedId, setUserLoggedId] = useState<number | null>(null);
   // const [userTempTrue, setUserTempTrue] = useState<boolean>(false);
   // const [userCompanyId, setUserCompanyId] = useState<number | null>(null);
-
+  const dispatch = useDispatch<AppDispatch>();
   // Função para Determinar o tipo de conta.
   const checkAccountType = (typeAcc: number) => {
     // TODO: Implementar verificação de tipo de conta.
@@ -31,47 +39,29 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
-    // console.log("Redux user:", user.name);
-    // console.log("Auth state:", auth);
-    // console.log("Loading state:", loading);
-    const checkAuth = async () => {
-      //console.log(user);
-      if (user && Object.keys(user).length > 0) {
-        // Setando a Role do user para retornar esse valor.
-        const userRole = checkAccountType(user.roleId ?? 6);
-        //console.log('userRole', user.userId);
-        // console.log(userRole)
-        // Retornando o ID do usuário no userLoggedId
-        setUserLoggedId(user.userId);
-        setRoleUser(userRole);
-        setAuth(true);
-        // Verificando se o usuário está com a senha temporária habilitado, caso esteja, redireciona para renovar a senha.
-        // if(user.timePassword){
-        //   console.log('Usando autenticação de senha temporária.')
-        //   setUserTempTrue(true);
-        //   // navigate('/change-password', { replace: true });
-        //   // window.location.href = '/change-password'; // Redireciona para a página de mudança de senha.
-        // }else if(user.timePassword === null){
-        //   console.log('Usando autenticação de senha.')
-        //   setUserTempTrue(false);
-        //   // navigate('/', { replace: true });
-        //   // window.location.href = '/'; // Redireciona para a página inicial.
-        // }
-      } else {
-        console.log('user not logged');
-        setAuth(false);
-      }
+    const token = localStorage.getItem("token");
+    if (token && !authenticated) {
+      dispatch(validUserLogged()).finally(() => {
+        setLoading(false);
+      });
+    } else {
       setLoading(false);
-    };
+    }
+  }, []);
 
-    checkAuth();
-  }, [user]);
-  // console.log("Redux user:", user);
-  // console.log("Auth state:", auth);
-  // console.log("Loading state:", loading);
+  useEffect(() => {
+    if(authenticated && user){
+      setAuth(true);
+      setUserLoggedId(user.userId);
+      setRoleUser(checkAccountType(user.roleId ?? 6));
+    }else{
+      setAuth(false);
+    }
+  },[authenticated, user]);
+
   return {
     auth,
-    loading,
+    loading: loading || isLoading,
     roleUser,
     userLoggedId,
     user,
