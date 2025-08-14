@@ -12,6 +12,9 @@ import Home from "./pages/home/Home.tsx";
 import Clients from "./pages/client/Clients.tsx";
 import Os from "./pages/os/Os.tsx";
 import Admin from "./pages/admin/Admin.tsx";
+import UserProfile from './pages/user/UserProfile.tsx';
+import UserSettings from './pages/user/UserSettings.tsx';
+import Notifications from './pages/notifications/Notifications.tsx';
 // import { About } from './pages/About';
 
 // Importando os layout dependendo da autenticação do usuário /// Pages
@@ -68,6 +71,30 @@ function App() {
                 element={
                   <MainLayout >
                     <Clients />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <MainLayout >
+                    <UserProfile />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path='/settings'
+                element={
+                  <MainLayout >
+                    <UserSettings />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path='/notifications'
+                element={
+                  <MainLayout >
+                    <Notifications />
                   </MainLayout>
                 }
               />

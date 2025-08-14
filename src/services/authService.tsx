@@ -1,4 +1,5 @@
 import { api, requestConfig} from '../utils/config';
+import type { userDataEdit } from '../interfaces/AuthUserInterface';
 
 interface updateTimePasswordProps {
   info_login: number | undefined;
@@ -10,6 +11,32 @@ interface RegisterUserResponse {
   lastname: string;
   email: string;
   password?: string;
+}
+// Coletando a quantidade de usuários e seus dados.
+const getAllUsersAndCount = async () => {
+  const config = requestConfig("GET", null, getToken());
+  try {
+    const res = await fetch(`${api}/users/summary`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err))
+    return res
+  } catch (error) {
+    console.log('Erro ao coletar a quantidade de usuários e os dados: ' + error);
+    return null
+  }
+}
+// Coletando os dados detalhados de usuário por Id.
+const getUserById = async (id: number) => {
+  const config = requestConfig("GET", null, getToken());
+  try {
+    const res = await fetch(`${api}/users/${id}`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err))
+    return res
+  } catch (error) {
+    console.log('Erro ao coletar os dados do usuário: ' + error);
+    return null
+  }
 }
 const getToken = () => {
   try {
@@ -31,7 +58,6 @@ const getToken = () => {
     return null;
   }
 }
-
 // Validação periódica do usuário logado.
 const validUserLogged = async () => {
   const config = requestConfig("GET", null, getToken());
@@ -44,7 +70,6 @@ const validUserLogged = async () => {
     console.log(error);
   }
 }
-
 // Register a user
 const register = async(data: RegisterUserResponse) => {
   const config = requestConfig("POST", data);
@@ -58,7 +83,6 @@ const register = async(data: RegisterUserResponse) => {
     console.log('Erro na tentativa de registro.');
   }
 }
-
 // Login user
 const login = async(data: {[key: string]: string}) => {
   const config = requestConfig("POST", data);
@@ -71,8 +95,36 @@ const login = async(data: {[key: string]: string}) => {
     console.log(error);
     console.log('Erro na tentativa de login.');
   }
-};
-
+}
+// Update UserItSelf
+const updateDataUserSelf = async(FormData: FormData) => {
+  const token = getToken();
+  const config = requestConfig("PUT", FormData, token);
+  try {
+    const user = FormData.get('userId');
+    const res = await fetch(`${api}/users/editself/${user}`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err))
+    return res
+  } catch (error) {
+    console.log(error);
+    console.log('Erro na tentativa de atualizar os dados do usuário.');
+  }
+}
+// Update data about User Id
+const updateDataUser = async(data: userDataEdit) => {
+  const token = getToken();
+  const config = requestConfig("PUT", data, token);
+  try {
+    const res = await fetch(`${api}/users/edit/${data.userId}`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err))
+    return res
+  } catch (error) {
+    console.log(error);
+    console.log('Erro na tentativa de atualizar os dados do usuário.');
+  }
+}
 // UpdateTimePassword
 const updateTimePassword = async(data: updateTimePasswordProps) => {
   const token = getToken();
@@ -87,7 +139,6 @@ const updateTimePassword = async(data: updateTimePasswordProps) => {
     console.log('Erro na tentativa de atualizar a senha.');
   }
 }
-
 // Logout user
 const logout = () => {
   try {
@@ -99,14 +150,19 @@ const logout = () => {
     console.log("Não foi possível encerrar a sessão adequadamente..." + error)
   }  
 }
-
 // Export
 const authService = {
+  getAllUsersAndCount,
+  getUserById,
   validUserLogged,
   register,
   login,
   logout,
-  updateTimePassword
+  updateTimePassword,
+  updateDataUserSelf,
+  updateDataUser
 }
 
 export default authService;
+
+// getAllUsersAndCount getUserById

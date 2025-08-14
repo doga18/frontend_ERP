@@ -6,6 +6,9 @@ export const hostfile = import.meta.env.VITE_API_HOSTFILE;
 export const files = import.meta.env.VITE_API_FILES;
 export const apiCep = import.meta.env.VITE_API_CEP;
 
+// Images
+export const UserNotFound = '/images/userNotFound.png';
+
 interface responseListClients {
   clients: Clients[] | undefined;
 }
@@ -63,8 +66,9 @@ export const formatDateTimeLocal = (dateString: string) => {
   const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
     .toISOString()
     .slice(0, 16); // Formato YYYY-MM-DDTHH:mm
-
-  return localTime;
+    // Removendo o 'T'
+    const newLocalTime = localTime.replace('T', ' ');
+  return newLocalTime;
 };
 // Exportando função que retorna o token.
 export const getToken = () => {

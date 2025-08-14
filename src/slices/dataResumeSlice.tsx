@@ -116,7 +116,7 @@ const dataResumeSlice = createSlice({
         state.message = null;
       })
       .addCase(getResumeUsers.fulfilled, (state, action) => {
-        if(action.payload.rows &&action.payload.rows.length >= 0) {
+        if(action.payload.rows &&action.payload.rows.length <= 0) {
           console.log('Nenhum usuário encontrado.');
           console.log(action.payload)
         }

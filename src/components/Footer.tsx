@@ -23,7 +23,7 @@ const Footer = () => {
             </a>
             <ul className="flex flex-wrap items-center mb-6 text-light text-white sm:mb-0 dark:text-gray-400">
               <li>
-                <a href="https://github.com/doga18" className="hover:underline me-4 md:me-6">
+                <a href="https://github.com/doga18" target='_blank' className="hover:underline me-4 md:me-6">
                   <div className="inline-flex items-center space-x-2 rtl:space-x-reverse py-4 transition cursor-pointer">
                     <SiGit className='text-white' title="Doga18 GitHub" />
                     <span className="text-white hover:text-amber-500 hover:rounded-lg hover:shadow-2xl hover:font-light transition">Github</span>
@@ -31,7 +31,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="https://www.instagram.com/dglpfeiffer" className="hover:underline me-4 md:me-6">
+                <a href="https://www.instagram.com/dglpfeiffer" target='_blank' className="hover:underline me-4 md:me-6">
                   <div className="inline-flex items-center space-x-2 rtl:space-x-reverse py-4 transition cursor-pointer">
                     <SiInstagram className='text-white' title="Doga18 Instagram" />
                     <span className="text-white hover:text-pink-500 hover:rounded-lg hover:shadow-2xl hover:font-light transition">Instagram</span>
@@ -54,7 +54,7 @@ const Footer = () => {
               © 2025 <a href="https://IssueSolved.com/" className="hover:underline">IssueSolved</a>. Todos os direitos reservados.
             </span>
             <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
-              Desenvolvedor <a href="https://github.com/DIPS-DEV" className="hover:underline" title={'Douglas Israel Pfeiffer S.'}>DIPS-DEV</a>.
+              Desenvolvedor <a href="https://github.com/doga18" target='_blank' className="hover:underline" title={'Douglas Israel Pfeiffer S.'}>DIPS-DEV</a>.
             </span>
           </div>
         </div>

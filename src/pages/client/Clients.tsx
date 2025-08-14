@@ -168,9 +168,9 @@ const Clients = () => {
                 </thead>
                 <tbody className="bg-white">
                   {clientsRows &&
-                    clientsRows.map((client) => (
+                    clientsRows.map((client, index) => (
                       <tr
-                        key={client.clientId}
+                        key={index}
                         className="hover:bg-gray-200 cursor-pointer"
                         onClick={() => {
                           console.log("Cliente selecionado:", client);

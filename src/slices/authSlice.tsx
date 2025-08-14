@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import authService from "../services/authService";
+import type { userDataEdit } from '../interfaces/AuthUserInterface';
 
 interface UserState {
   // user: Record<string, any> | null;
@@ -10,6 +11,9 @@ interface UserState {
   isLoading: boolean;
   authenticated?: boolean;
   message: string | null;
+  userSelected: userData | null
+  usersList: userData[] | null
+  totalUsers: number
 }
 // Tipo de resposta
 interface RegisterUserResponse {
@@ -33,6 +37,16 @@ interface userData {
   token: string;
   createdAt?: string;
   updatedAt?: string;
+  files?: [
+    {
+      fileName: string;
+      fileUrl: string;
+    }
+  ]
+}
+interface ResponseListUsersAndCount {
+  count: number
+  rows: userData[]
 }
 interface LoginUserResponse {
   user?: userData;
@@ -81,9 +95,40 @@ const initialState: UserState = {
   isLoading: false,
   message: null,
   authenticated: false,
+  userSelected: null,
+  usersList: null,
+  totalUsers: 0
 };
+console.log('User localizado no localstorage: ', initialState.user?.userId);
 
-
+// Slice Get all Users and Count
+export const getAllUsersAndCount = createAsyncThunk<
+  ResponseListUsersAndCount,
+  void,
+  { rejectValue: { errors: string[] } }
+>("auth/getAllUsersAndCount", async (_, thunkAPI) => {
+  try {
+    const response = await authService.getAllUsersAndCount();
+    return response;
+  } catch (error: unknown) {
+    console.log(error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+})
+// Slice GetUserById
+export const getUserById = createAsyncThunk<
+  userData,
+  number,
+  { rejectValue: { errors: string[] } }
+>("auth/getUserById", async (id: number, thunkAPI) => {
+  try {
+    const response = await authService.getUserById(id);
+    return response;
+  } catch (error: unknown) {
+    console.log(error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+})
 // Slice de Login
 export const loginUser = createAsyncThunk<
   LoginUserResponse, // Tipo de retorno, com user? e message.
@@ -154,7 +199,6 @@ export const registerUser = createAsyncThunk<
     }
   }
 );
-
 // Validando o usuário logado
 export const validUserLogged = createAsyncThunk<
   UserAuthenticaded,
@@ -197,6 +241,26 @@ export const validUserLogged = createAsyncThunk<
 export const logout = createAsyncThunk("auth/logout", async () => {
   await authService.logout();
 });
+// Edit user self
+export const updateDataUserSelf = createAsyncThunk<
+  { message: string },
+  FormData,
+  { rejectValue: { errors: string[] } }
+>("auth/updateDataUserSelf", async (FormData, thunkAPI) => {
+  // Extraindo o userID do formData para usar no link...
+  try {
+    const response = await authService.updateDataUserSelf(FormData);
+    if (response.errors) {
+      return thunkAPI.rejectWithValue({ errors: response.errors });
+    } else if (response.message) {
+      return response;
+    }
+  } catch (error: unknown) {
+    console.log(error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+});
+
 
 // Criando o Slice.
 const userSlice = createSlice({
@@ -205,6 +269,89 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // EditDataSelf
+      .addCase(updateDataUserSelf.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(updateDataUserSelf.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        if(action.payload.message){
+          if(action.payload.message.includes("sucesso")){
+            state.message = action.payload.message;
+            state.success = true;  
+          }
+          if(action.payload.message.includes("nova senha precisa ser diferente da senha atual")){
+            state.message = null;
+            state.error = {
+              message: action.payload.message
+            }
+            state.success = false;  
+          }
+          if(action.payload.message.includes("diferente da última senha")) {
+            state.message = null;
+            state.error ={
+              message: action.payload.message
+            }
+            state.success = false;  
+          }
+        }else{
+          state.message = null;
+          state.success = false;
+        }
+      })
+      .addCase(updateDataUserSelf.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = {
+          message: action.payload?.errors[0] || "Erro Desconhecido.",
+        };
+        state.message = null;
+      })
+      // Get AllUsersAndCount
+      .addCase(getAllUsersAndCount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(getAllUsersAndCount.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.message = null;
+        state.usersList = action.payload.rows;
+        state.totalUsers = action.payload.count;
+      })
+      .addCase(getAllUsersAndCount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = {
+          message: action.payload?.errors[0] || "Erro Desconhecido.",
+        };
+        state.message = null;
+        state.usersList = [];
+        state.totalUsers = 0;
+      })
+      // Get UserById
+      .addCase(getUserById.pending, (state) => {
+        state.userSelected = null;
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.message = null;
+        state.userSelected = action.payload;
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = {
+          message: action.payload?.errors[0] || "Erro Desconhecido.",
+        };
+        state.message = null;
+        state.userSelected = null;
+      })
       // Registro de Conta.
       .addCase(registerUser.pending, (state) =>{
         state.isLoading = true;
