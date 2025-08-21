@@ -17,6 +17,22 @@ export interface AuthUserInterface {
   token: string;
 }
 
+export interface newUser{
+  name: string;
+  lastname: string;
+  email: string;
+  password: string;
+}
+
+export interface newUserByAnother{
+  name: string;
+  lastname: string;
+  email: string;
+  password: string;
+  roleId: number;
+  avaiable: boolean;
+}
+
 export interface userDataEdit {
   userId?: string;
   name?: string;
@@ -46,7 +62,7 @@ export interface userDataList {
   password?: string;
   createdAt?: string;
   updatedAt?: string;
-  files: [
+  files?: [
     {
       fileName: string;
       fileUrl: string;

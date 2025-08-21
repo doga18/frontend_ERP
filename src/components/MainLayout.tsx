@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import NavBar from "./NavBar";
 
 // Importando o tratamento do dispatch.
-import { useAuth } from "../hooks/useAuthBACKUP";
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../store";
 import { useDispatch } from "react-redux";

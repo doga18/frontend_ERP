@@ -31,7 +31,7 @@ import NewClient from "./NewClient";
 import EditClient from "./EditClient";
 
 // hooks
-import { useAuth } from "../../hooks/useAuthBACKUP";
+import { useAuth } from "../../hooks/useAuth";
 
 const Clients = () => {
   // Instances and initilizations
@@ -150,18 +150,18 @@ const Clients = () => {
             </div>
           </div>
         ) : (
-          <div className="shadow-lg bg-transparent w-full p-3 flex flex-col">
+          <div className="shadow-lg bg-transparent w-full p-3 flex flex-col min-h-screen">
             <div className="bg-white shadow-md rounded-lg p-4 text-gray-950 overflow-auto flex-1">
               <h2 className="text-xl font-semibold mb-4">Lista de Clientes</h2>
               <table className="w-full text-sm text-left rtl:text-right text-gray-900">
-                <thead className="text-xs text-gray-900 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-600">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                   <tr className="bg-gray-200">
                     <th className="py-3 px-6 text-left rounded-s-lg">Nome</th>
                     <th className="py-2 px-4 text-left">Sobrenome</th>
-                    <th className="py-2 px-4 text-left">Contato (whatsapp)</th>
+                    <th className="py-2 px-4 text-left" title='Contato Telefônico'>Whatsapp</th>
                     <th className="py-2 px-4 text-left">Cidade</th>
                     <th className="py-2 px-4 text-left">Rua</th>
-                    <th className="py-2 px-4 text-left rounded-e-lg flex-block flex justify-center">
+                    <th className="py-2 px-4 text-center">
                       Ações
                     </th>
                   </tr>
@@ -171,7 +171,7 @@ const Clients = () => {
                     clientsRows.map((client, index) => (
                       <tr
                         key={index}
-                        className="hover:bg-gray-200 cursor-pointer"
+                        className="hover:bg-gray-200 cursor-pointer transition duration-300 ease-in-out"
                         onClick={() => {
                           console.log("Cliente selecionado:", client);
                         }}

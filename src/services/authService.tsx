@@ -1,5 +1,5 @@
 import { api, requestConfig} from '../utils/config';
-import type { userDataEdit } from '../interfaces/AuthUserInterface';
+import type { userDataEdit, newUserByAnother } from '../interfaces/AuthUserInterface';
 
 interface updateTimePasswordProps {
   info_login: number | undefined;
@@ -83,6 +83,19 @@ const register = async(data: RegisterUserResponse) => {
     console.log('Erro na tentativa de registro.');
   }
 }
+// Register a UserByAnotherUser
+const registerByAnotherUser = async(data: newUserByAnother) => {
+  const config = requestConfig("POST", data, getToken());
+  try {
+    const res = await fetch(`${api}/users/newUserByDashboard`, config)
+      .then((res) => res.json())
+      .catch((err: unknown) => console.log(err))
+    return res
+  } catch (error) {
+    console.log(error);
+    console.log('Erro na tentativa de registro.');
+  }
+}
 // Login user
 const login = async(data: {[key: string]: string}) => {
   const config = requestConfig("POST", data);
@@ -156,6 +169,7 @@ const authService = {
   getUserById,
   validUserLogged,
   register,
+  registerByAnotherUser,
   login,
   logout,
   updateTimePassword,

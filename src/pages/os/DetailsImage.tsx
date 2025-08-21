@@ -5,6 +5,9 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 type PropsDetails = {
   name?: string;
   url: string;
+  Totalindex?: number;
+  index?: number;
+  urls?: string[];  
   isOpen: boolean;
   onClose: () => void;
 }

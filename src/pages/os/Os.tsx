@@ -1,10 +1,11 @@
 import /* React, */ { useState, useEffect} from 'react'
+//import { Tooltip } from '@headlessui/react'
 
 // importando icons
 // import { BugAntIcon } from '@heroicons/react/24/outline';
 
 // Importando funções úteis
-import { formatDateTimeLocal } from '../../utils/config';
+// import { formatDateTimeLocal } from '../../utils/config';
 
 // Importando o tratamento do dispath.
 import { useSelector, useDispatch } from 'react-redux';
@@ -25,6 +26,8 @@ import type { OsDetailsInterface } from '../../interfaces/OsDetailsInterface';
 // Pages
 import OsDetails from './OsDetails';
 import NewOs from './NewOs';
+import Message from '../../components/Message';
+import ViewClient from '../client/ViewClient';
 
 interface Props {
   setCountOs?: (count: number) => void;
@@ -41,9 +44,13 @@ const Os = ({ setCountOs } : Props) => {
   // Modal control
   const [modalOsDetails, setModalOsDetails] = useState<boolean>(false)
   const [modalOsNew, setModalOsNew] = useState<boolean>(false)
+  const [modalViewClient, setModalViewClient] = useState<boolean>(false)
   const [selectedOs, setSelectedOs] = useState<OsDetailsInterface | null>(null);
+  const [hoveredClientId, setHoveredClientId] = useState<number | null>(null);
+  // Página
+  const [pageMessage, setPageMessage] = useState<string>("")
 
-  // Funções
+  // Redux
   const dispatch = useDispatch<AppDispatch>();
   const {
     total: totalOs,
@@ -53,7 +60,12 @@ const Os = ({ setCountOs } : Props) => {
     loading: loadingOs,
     //termId: termIdOs
   } = useSelector((state: RootState) => state.os);
-
+  // Funçãoes
+  const constructTitleLink = (clientId: number) => (
+    <div className="abosolute bg-white p-2 border border-gray-300 rounded shadow-lg z-15">
+      <span className="text-indigo-600">Clique para ver detalhes do cliente #{clientId}</span>
+    </div>
+  );
   // Controles da página:
   const handlePreviousPage = () => {
     if(currentPage > 1){
@@ -103,11 +115,24 @@ const Os = ({ setCountOs } : Props) => {
       // Criando um Array mesmo quando for 1 objeto.      
       setAllOs(Array.isArray(dataOs) ? dataOs : [dataOs]);
     }
-  }, [total, totalOs, totalPagesOs, currentPageOs, dataOs, setCountOs]);
+  }, [total, dataOs]);
+
+  useEffect(() => {
+    if(pageMessage.length > 5){
+      setTimeout(() => {
+        setPageMessage('');
+      }, 6000);
+    }
+  }, [pageMessage])
+
+  console.log('Os: ', allOs);
 
   return (
-    <div className='mt-6 px-5'>
+    <div className='mt-6 px-5 '>
       {/* Seção de Pesquisa e Botão de Criar OS */}
+      {pageMessage && pageMessage.length > 3 && (
+        <Message msg={pageMessage} type={`${pageMessage.includes('sucess') ? 'success' : 'error'}`} duration={5000} />
+      )}
         <div className="flex tems-center mb-6 justify-between gap-4 w-full">
           <div className="flex flex-1 w-1/2">
             <input
@@ -134,7 +159,7 @@ const Os = ({ setCountOs } : Props) => {
 
         {/* Tabela de Ordens de Serviço */}
         {loadingOs && allOs && allOs?.length >= 0 ? (
-          <div className="flex justify-center items-center h-[30rem] rounded-2xl bg-gray-800">
+          <div className="flex justify-center items-center h-[30rem] rounded-2xl bg-gray-800 min-h-screen">
             <div className="flex flex-col justify-center items-center h-[10rem] w-[32rem] bg-amber-100 rounded-2xl shadow-xl">
               <div className="font-semibold text-white bg-gray-700 p-2 shadow-xl rounded mb-10 text-shadow-lg mx-10">
                 Carregando, aguarde...
@@ -144,11 +169,11 @@ const Os = ({ setCountOs } : Props) => {
           </div>
         ) : (
           <>
-            <div className="bg-white shadow-md rounded-lg p-4 text-gray-950 overflow-auto">
+            <div className="bg-white shadow-md rounded-lg p-4 text-gray-950 overflow-auto min-h-screen">
               <h2 className="text-xl font-semibold mb-4 text-indigo-700">Lista de Ordens de Serviço</h2>
               <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                <thead>
-                  <tr className="bg-indigo-700 text-white">
+                <thead className='text-xs text-gray-700 uppercase bg-gray-50'>
+                  <tr className="bg-gray-200">
                     <th className="py-2 px-4 text-left">OS</th>
                     <th className="py-2 px-4 text-left">Título</th>
                     <th className="py-2 px-4 text-left">Descrição</th>
@@ -158,42 +183,47 @@ const Os = ({ setCountOs } : Props) => {
                     <th className="py-2 px-4 text-left">Orçamento</th>
                     <th className="py-2 px-4 text-left">Abertura</th>
                     <th className="py-2 px-4 text-left">Última Atualização</th>
-                    <th className="py-2 px-4 text-left">Ações</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {allOs && allOs.length > 0 ? (
                     allOs.map((os, index) => (
                       <tr
                         key={index}
-                        className={`${index % 2 === 0 ? "bg-indigo-50" : "bg-white"} hover:bg-indigo-100 transition`}
+                        className={`${index % 2 === 0 ? "bg-indigo-50" : "bg-white"} hover:bg-indigo-100 transition cursor-pointer`}
+                        onClick={() => {
+                          setSelectedOs(os);
+                          setModalOsDetails(true);
+                        }} 
                       >
-                        <td className="py-2 px-4 border-b">{os.os_number}</td>
-                        <td className="py-2 px-4 border-b">
-                          {os.title.split(' ').slice(0, 3).join(' ')}...
+                        <td className="py-2 px-4 text-left">{os.os_number}</td>
+                        <td className="py-2 px-4 text-left" title={`${os.title}`}>
+                          {os.title.split(' ').slice(0, 2).join(' ')}...
                         </td>
-                        <td className="py-2 px-4 border-b">
+                        <td className="py-2 px-4 text-left" title={`${os.description}`}>
                           {os.description.split(' ').slice(0, 3).join(' ')}...
                         </td>
-                        <td className="py-2 px-4 border-b">{os.status.split(' ')[0]}...</td>
-                        <td className="py-2 px-4 border-b">{os.priority}</td>
-                        <td className="py-2 px-4 border-b">{os.clientAssigned?.name || 'N/A'}</td>
-                        <td className="py-2 px-4 border-b">R$: {os.budget}</td>
-                        <td className="py-2 px-4 border-b">{formatDateTimeLocal(os.createdAt)}</td>
-                        <td className="py-2 px-4 border-b">{formatDateTimeLocal(os.updatedAt)}</td>
-                        <td className="py-2 px-4 border-b flex gap-2">
-                          <button
-                            className="bg-[#7b2d26] hover:bg-[#5c1f1a] text-white px-3 py-1 rounded"
-                            onClick={() => {
-                              setSelectedOs(os);
-                              setModalOsDetails(true);
-                            }}
-                          >
-                            Editar
-                          </button>
-                          <button className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded">
-                            Excluir
-                          </button>
+                        <td className="py-2 px-4 text-left" title={os.status}>{os.status.split(' ')[0]}...</td>
+                        <td className="py-2 px-4 text-left">{os.priority}</td>
+                        <td className="py-2 px-4 text-left relative group">
+                          <span className="">
+                            {os.client ? os.client.name : 'N/A'}
+                          </span>
+                          {os.client && os.client.clientId && (
+                            <div className="absolute hover:animate-none left-1/2 -translate-x-1/2 bottom-full mb-2 bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1">
+                              Detalhes do cliente
+                              {/* Seta do tooltip */}
+                              <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-t-gray-800 border-l-transparent border-r-transparent"></div>
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-2 px-4">R$: {os.budget}</td>
+                        <td className="py-2 px-4">
+                          {new Date(os.createdAt).toLocaleDateString("pt-BR")}
+                        </td>
+                        <td className="py-2 px-4 text-center ">
+                          {new Date(os.updatedAt).toLocaleDateString("pt-BR") + ' ' + new Date(os.updatedAt).toLocaleTimeString("pt-BR")}
                         </td>
                       </tr>
                     ))
@@ -247,7 +277,7 @@ const Os = ({ setCountOs } : Props) => {
                   )}
             {modalOsNew && <NewOs isOpen={modalOsNew} onClose={() => {
               setModalOsNew(false)
-            }} />}
+            }} notify={(msg: string) => setPageMessage(msg)} />}
           </>
         )}
         

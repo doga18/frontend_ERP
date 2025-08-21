@@ -40,7 +40,7 @@ const initialState: ResponseClientsCount = {
 // Get all Clients and count
 export const getAllClientCount = createAsyncThunk<
   ResponseClientsCount,
-  { page: number, limit: number },
+  { page: number | string, limit: number },
   { rejectValue: ResponseErrorClientsCount }
 >(
   "clients/getAllClientCount",

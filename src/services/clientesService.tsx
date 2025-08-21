@@ -9,7 +9,7 @@ const token = getToken();
 
 // Funções
 // GetQtdAboutClients
-const countAllClients = async (limit: number, page: number) => {
+const countAllClients = async (limit: number, page: number | string) => {
   const config = requestConfig("GET", null, token);
   console.log(`Obtendo quantidade de clientes com limite: ${limit} e página: ${page}`);
   try {

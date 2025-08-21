@@ -217,6 +217,7 @@ const osSlice = createSlice({
         state.total = action.payload.total;
         state.totalPages = action.payload.totalPages;
         state.currentPage = action.payload.currentPage;
+        console.log("Resposta da API: ", action.payload.data)
         state.data = action.payload.data;
       })
       .addCase(getAllOsWithLimitAndPage.rejected, (state, action) => {
@@ -289,6 +290,7 @@ const osSlice = createSlice({
         state.message = action.payload.message;
         if(action.payload.os){
           console.log("Resultado da OS:", action.payload.os);
+          console.log("Resultado message: ", action.payload.message);
           state.data.push(action.payload.os);
         }
       })

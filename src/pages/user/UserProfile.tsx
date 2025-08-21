@@ -21,7 +21,7 @@ interface Props {
   userData?: number | undefined;
 }
 
-const UserProfile = ({ onClose, isOpen, userData }: Props) => {
+const UserProfile = (props: Props) => {
   // Redux
   const dispatch = useDispatch<AppDispatch>();
   const { isLoading, userSelected, message, error } = useSelector(
@@ -101,7 +101,7 @@ const validatePasswords = () => {
     newEditData.append("name", newName);
     newEditData.append("lastname", newLastName);
     newEditData.append("email", newEmail);
-    if(handleValidPassword() === true){
+    if(validatePasswords()){
       newEditData.append("password", validNewPassword);
     }else{
       console.log("A senha não atende os requisitos mínimos: " + newPassword);
@@ -545,7 +545,7 @@ const validatePasswords = () => {
                             type={passwordActualVisible ? "text" : "password"}
                             id="passwordActual"
                             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 peer pr-10"
-                            required
+                            
                             value={passwordActual}
                             onChange={(e) => setPasswordActual(e.target.value)}
                           />
@@ -609,7 +609,7 @@ const validatePasswords = () => {
                             name="newPassword"
                             id="newPassword"
                             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 peer"
-                            required
+                            required={passwordActual.length > 0 ? true : false}
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                           />
@@ -675,7 +675,7 @@ const validatePasswords = () => {
                             name="confirmPassword"
                             id="confirmPassword"
                             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 peer"
-                            required
+                            required={passwordActual.length > 0 ? true : false}
                             value={newPasswordConfirm}
                             onChange={(e) =>
                               setNewPasswordConfirm(e.target.value)

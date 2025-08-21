@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import authService from "../services/authService";
-import type { userDataEdit } from '../interfaces/AuthUserInterface';
+import type { newUserByAnother, userDataEdit } from '../interfaces/AuthUserInterface';
 
 interface UserState {
   // user: Record<string, any> | null;
@@ -22,6 +22,12 @@ interface RegisterUserResponse {
   message?: string;
 }
 
+interface RegisterNewUserByAnother {
+  error?: string;
+  user?: userData;
+  message?: string;
+}
+
 interface RegisterUserResponseError {
   errors: string;
 }
@@ -34,7 +40,10 @@ interface userData {
   avaiable: boolean;
   hash_recover_password?: string;
   roleId: number;
-  token: string;
+  role?: {
+    name: string
+  }
+  token?: string;
   createdAt?: string;
   updatedAt?: string;
   files?: [
@@ -68,6 +77,12 @@ interface AuthUserInterface {
   updatedAt?: string;
   hash_recover_password?: string;
   token: string;
+  files: [
+    {
+      fileName: string;
+      fileUrl: string;
+    }
+  ]
 }
 
 interface newUserData {
@@ -79,7 +94,7 @@ interface newUserData {
 
 interface UserAuthenticaded {
   message: string;
-  userId?: number;
+  user?: userData;
   error?: string;
 }
 
@@ -89,12 +104,12 @@ interface UserAuthenticaded {
 // }
 
 const initialState: UserState = {
-  user: JSON.parse(localStorage.getItem("user") as string) || {},
+  user: JSON.parse(localStorage.getItem("user") as string) || null,
   success: false,
   error: null,
   isLoading: false,
   message: null,
-  authenticated: false,
+  authenticated: true,
   userSelected: null,
   usersList: null,
   totalUsers: 0
@@ -162,7 +177,6 @@ export const loginUser = createAsyncThunk<
     return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
   }
 });
-
 export const registerUser = createAsyncThunk<
   // Tipos de sucesso, ou seja oque a API responde ao dar sucesso.
   // { message: string, user: Record<string, any> },
@@ -199,6 +213,28 @@ export const registerUser = createAsyncThunk<
     }
   }
 );
+export const registerUserByAnotherUser = createAsyncThunk<
+  RegisterNewUserByAnother,
+  newUserByAnother,
+  { rejectValue: { errors: string[] } }
+>("auth/registerUserByAnotherUser", async (user, thunkAPI) => {
+  try {
+    const response = await authService.registerByAnotherUser(user);
+    if(response.error){
+      console.log("Erro ao tentar registrar um novo usuário", response.error);
+      return thunkAPI.rejectWithValue({ errors: response.error });
+    } else if (response.message) {
+      return response;
+    } else {
+      throw new Error("Erro ao tentar registrar, desconhecido." + response);
+    }
+  } catch (error: unknown) {
+    console.log(error);
+    // Verifica se o erro é do tipo CustomError
+    console.log("Erro ao realizar registro: " + error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+});
 // Validando o usuário logado
 export const validUserLogged = createAsyncThunk<
   UserAuthenticaded,
@@ -260,6 +296,25 @@ export const updateDataUserSelf = createAsyncThunk<
     return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
   }
 });
+// Edit User
+export const updateDataUser = createAsyncThunk<
+  { message: string, user?: userData },
+  userDataEdit,
+  { rejectValue: { errors: string[], message?: string } }
+>("auth/updateDataUser", async (data, thunkAPI) => {
+  try {
+    const response = await authService.updateDataUser(data);
+    if (response.errors) {
+      return thunkAPI.rejectWithValue({ errors: response.errors });
+    } else if (response.message) {
+      console.log(response.message);
+      return response;
+    }
+  } catch (error: unknown) {
+    console.log(error);
+    return thunkAPI.rejectWithValue({ errors: ["Erro Desconhecido."] });
+  }
+});
 
 
 // Criando o Slice.
@@ -269,6 +324,46 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // EditDataUser
+      .addCase(updateDataUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(updateDataUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        console.log("Resposta do payload na edição do usuário:", action.payload);
+        //console.log("Listando os usuário presentes: ", state.usersList);
+        if(action.payload.message){
+          if(action.payload.message.includes("sucesso")){
+            state.message = action.payload.message;
+            state.success = true;
+            // Atualizando os dados da list
+            const updateUsers = action.payload.user?.userId
+            state.usersList = (state.usersList ?? []).map((user) => {
+              if (user.userId === updateUsers) {
+                return { ...user, ...action.payload.user };
+              }
+              return user;
+            })
+          }else if (action.payload.message.includes("Você não tem permissão")){
+            state.message = null;
+            state.error = {
+              message: action.payload.message
+            }
+            state.success = false;
+          }
+        }
+      })
+      .addCase(updateDataUser.rejected, (state, action) => {
+        console.log("Resposta do rejeito na edição do usuário:", action.payload);
+        state.isLoading = false;
+        state.error = { message: action.payload?.errors[0] || "Erro Desconhecido." };
+        console.log("Message de erro: ", action.payload);
+        state.message = action.payload?.message ? action.payload.message : null;
+        state.success = false;
+      })
       // EditDataSelf
       .addCase(updateDataUserSelf.pending, (state) => {
         state.isLoading = true;
@@ -333,7 +428,6 @@ const userSlice = createSlice({
       })
       // Get UserById
       .addCase(getUserById.pending, (state) => {
-        state.userSelected = null;
         state.isLoading = true;
         state.error = null;
         state.message = null;
@@ -350,7 +444,6 @@ const userSlice = createSlice({
           message: action.payload?.errors[0] || "Erro Desconhecido.",
         };
         state.message = null;
-        state.userSelected = null;
       })
       // Registro de Conta.
       .addCase(registerUser.pending, (state) =>{
@@ -359,6 +452,7 @@ const userSlice = createSlice({
         state.message = null;
         state.user = null;
       })
+      // Registro próprio de conta.
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<RegisterUserResponse>) => {
         state.isLoading = false;
         state.message = null;
@@ -390,6 +484,48 @@ const userSlice = createSlice({
         state.message = null;
         state.user = null;
       })
+      // Registro de conta por usuário de permissão maior
+      .addCase(registerUserByAnotherUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.message = null;
+        state.user = null;
+      })
+      .addCase(registerUserByAnotherUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.message = "Cadastrado com sucesso.";
+        if(action.payload?.message?.includes("sucesso") && state.usersList?.length){
+          state.usersList?.push({
+            userId: action.payload?.user?.userId ?? 0,
+            name: action.payload?.user?.name ?? "",
+            lastname: action.payload?.user?.lastname ?? "",
+            email: action.payload?.user?.email ?? "",
+            avaiable: action.payload?.user?.avaiable ?? false,
+            hash_recover_password: action.payload?.user?.hash_recover_password ?? undefined,
+            createdAt: action.payload?.user?.createdAt ?? "",
+            updatedAt: action.payload?.user?.updatedAt ?? "",
+            roleId: action.payload?.user?.roleId ?? 5,
+            token: action.payload?.user?.token ?? "",
+            role: {
+              name:
+                action.payload?.user?.roleId === 1 ? "Admin" :
+                action.payload?.user?.roleId === 2 ? "Owner" :
+                action.payload?.user?.roleId === 3 ? "Manager" :
+                action.payload?.user?.roleId === 4 ? "Employee" :
+                "Supplier"
+            },
+            files: [{ fileName: '', fileUrl: '' }]
+          })
+        }
+      })
+      .addCase(registerUserByAnotherUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = { message: action.payload?.errors[0] || "Erro Desconhecido" };
+        state.message = null;
+        state.user = null;
+
+      })
       // Login de Conta.
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -414,6 +550,7 @@ const userSlice = createSlice({
           localStorage.setItem("token", requisitionToken);
           state.message = 'Login efetuado com sucesso!';
           state.success = true;
+          state.authenticated = true;
         }else{
           throw new Error("Erro ao tentar registrar, desconhecido.");
         }
@@ -429,22 +566,25 @@ const userSlice = createSlice({
       })
       // Validando o usuário logado.
       .addCase(validUserLogged.pending, (state) => {
-        state.authenticated = false;
+        console.log("Validando pendente")
         state.isLoading = true;
         state.error = null;
         state.message = null;
       })
       .addCase(validUserLogged.fulfilled, (state, action) => {
+        console.log("Sucesso na validação do usuário logado: ", action.payload);
         state.isLoading = false;
         state.error = null;
         state.message = null;
         state.authenticated = true;
         console.log('Payload do usuário autenticado:', action.payload);
-        if(action.payload && action.payload?.userId){
+        if(action.payload && action.payload?.user?.roleId){
+          state.user = action.payload.user;
           console.log('Payload do usuário autenticado:', action.payload);
         }        
       })
       .addCase(validUserLogged.rejected, (state, action) => {
+        console.log("falha na validação")
         state.isLoading = false;
         state.error = { message: action.payload?.errors[0] || "Erro Desconhecido" };
         state.message = null;

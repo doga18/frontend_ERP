@@ -6,7 +6,7 @@ import { SiGit, SiInstagram, SiWhatsapp } from '@icons-pack/react-simple-icons'
 const Footer = () => {
   return (
     <section>
-      <footer className="bg-white rounded-lg shadow-sm dark:bg-gray-800 my-2">
+      <footer className="bg-white rounded-lg shadow-sm dark:bg-gray-800 my-2 font-edu-titles-light">
         <div className="w-full max-w-screen-xl mx-auto p-4 md:py-8">
           <div className="sm:flex sm:items-center sm:justify-between">
             <a href="https://issuesolved.com/" className="flex items-center mb-4 sm:mb-0 space-x-0 rtl:space-x-reverse">

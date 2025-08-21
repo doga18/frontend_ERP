@@ -65,7 +65,7 @@ function classNames(...classes : string[]) {
                         isActive
                           ? 'bg-gray-900 text-white'
                           : 'text-gray-300 hover:bg-amber-500 hover:text-gray-900 hover:font-semibold',
-                        'px-3 py-2 rounded-md text-sm font-medium'
+                        'px-3 py-2 rounded-md text-sm font-medium font-edu-titles-light'
                       )}
                       aria-current={isActive ? 'page' : undefined}
                     >

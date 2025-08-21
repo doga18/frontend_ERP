@@ -141,7 +141,7 @@ const Home = () => {
     <div className="conteudo mt-5">
       <section className="items-center justify-center px-4">
         <div className="min-h-screen w-full ">
-          <h1 className="text-5xl mb-6 font-light px-4 transition hover:text-shadow-amber-700 text-gray-800">
+          <h1 className="text-5xl mb-6 font-light px-4 transition hover:text-shadow-amber-700 text-gray-800 font-edu-titles-bold">
             Dashboard - Visão Geral
           </h1>
           <section id="visionSystem">

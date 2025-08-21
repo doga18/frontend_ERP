@@ -10,11 +10,11 @@ export interface OsDetailsInterface {
   discount: string;
   createdAt: string;
   updatedAt: string;
-  clientAssigned?: {
+  client?: {
     clientId: number;
     name: string;
-    email: string;
-    contact: string;
+    email?: string;
+    contact?: string;
     contact_2?: string;
     address?: string;
     city?: string;
@@ -22,6 +22,7 @@ export interface OsDetailsInterface {
     country?: string;
     zipCode?: string;
   }
+  clientAssigned?: number;
   user?: {
     userId: number;
     name: string;
