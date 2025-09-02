@@ -32,6 +32,11 @@ interface Props {
   notify?: (msg: string) => void;
 }
 
+interface MsgPageInterface {
+  type: 'success' | 'error' | 'info';
+  msg: string;
+}
+
 const NewOs = ({ isOpen, onClose, notify }: Props) => {
   // Instanciando variáveis
   const dispatch = useDispatch<AppDispatch>();
@@ -41,8 +46,9 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
   // Verificando status das OS
   const {
     data: dataOs,
-    loading: loadingOs,
+    //loading: loadingOs,
     message: messageOs,
+    error: errorOs,
   } = useSelector((state: RootState) => state.os);
   // UseStates
   // Variaveis para armazenar os dados do formulário
@@ -63,12 +69,16 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
   const [modalNewClient, setModalNewClient] = useState<boolean>(false);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [loadingPage, setLoadingPage] = useState<boolean>(false);
+  const [msgPage, setMsgPage] = useState<MsgPageInterface>({
+    type: "success",
+    msg: "",
+  });
 
   // Funções
   const fechar = () => {
     notify?.("OS criada com sucesso!");
     onClose();
-  }
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!clientIdForm) {
@@ -83,6 +93,8 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
     formData.append("priority", priorityForm);
     formData.append("budget", budgetForm);
     formData.append("discount", "0");
+    // Vinculando o usuário à OS.
+    formData.append("clientAssigned", String(clientIdForm));
     // Aidicioando os arquivos ao formData, se for informado...
     if (filesInit.length > 0) {
       filesInit.forEach((file) => {
@@ -126,7 +138,7 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
   }, [rowsClients]);
 
   useEffect(() => {
-    if (clientNameSearch.length >= 2) {
+    if (clientNameSearch.length >= 1) {
       console.log("Buscando clientes...");
       const filtered = clientDataForm.filter((client) => {
         console.log("retornando: " + client.name);
@@ -149,15 +161,20 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
   }, [loadingSearch]);
   //data: dataOs, loading: loadingOs, message: messageOs
   useEffect(() => {
-    if (messageOs?.includes("OS criada com sucesso.")) {
-      notify?.("OS criada com sucesso!");
-    } else {
-      notify?.(messageOs ? messageOs : 'Erro ao Criar a OS.');
+    if(messageOs?.includes("sucesso")){
+      notify?.(messageOs);
     }
-  }, [dataOs]);
+    if(!errorOs?.message.includes("sucesso")){
+      setMsgPage({
+        type: "error",
+        msg: errorOs?.message ?? '',
+      });
+    }
+  }, [dataOs, messageOs, errorOs]);
 
   return (
     <>
+      {msgPage && <Message msg={msgPage.msg} type={msgPage.type} duration={5000} />}
       <Dialog open={isOpen} onClose={() => {}} className="relative z-10">
         <DialogBackdrop
           className="fixed inset-0 bg-black/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
@@ -345,29 +362,61 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
                                 `}
                               value={clientNameSearch}
                               onChange={(e) => {
-                                if (e.target.value.length >= 1) {
-                                  setclientNameSearch(e.target.value);
-                                }
+                                setclientNameSearch(e.target.value);
                               }}
                               onFocus={() => setShowDropdown(true)}
                             ></input>
-                            {clientIdForm && (
-                              <XMarkIcon
-                                className="relative right-15 top-5 -translate-y-1/2 w-6 h-6 text-red-700 rounded-md hover:text-gray-900 hover:bg-red-200 transition cursor-pointer"
-                                aria-hidden="true"
-                                onClick={() => {
-                                  cleanUpNameSearch();
-                                }}
-                                title="Limpar Seleção"
-                              />
-                            )}
-                            <PlusIcon
-                              className="relative right-10 top-4 -translate-y-1/2 w-6 h-6 text-black cursor-pointer"
-                              aria-hidden="true"
-                              onClick={() => {
-                                setModalNewClient(true);
-                              }}
-                            />
+                            <div className="transition duration-200">
+                              {clientIdForm && clientIdForm >= 0 ? (
+                                <XMarkIcon
+                                  className="relative right-8 top-4 -translate-y-1/2 w-6 h-6 text-red-700 rounded-md hover:text-gray-900 hover:bg-red-200 cursor-pointer transition duration-200"
+                                  aria-hidden="true"
+                                  onClick={() => {
+                                    cleanUpNameSearch();
+                                  }}
+                                  title="Limpar Seleção"
+                                />
+                              ) : clientNameSearch.length >= 1 &&
+                                filteredClients.length >= 1 ? (
+                                <XMarkIcon
+                                  className="relative right-8 top-4 -translate-y-1/2 w-6 h-6 text-black hover:text-gray-50 hover:bg-gray-950 rounded-md cursor-pointer transition duration-200"
+                                  aria-hidden="true"
+                                  title="Limpar Busca"
+                                  onClick={() => {
+                                    setclientNameSearch("");
+                                  }}
+                                />
+                              ) : clientNameSearch.length >= 1 &&
+                                filteredClients.length === 0 ? (
+                                <>
+                                  <div className="relative right-14 top-4 -translate-y-1/2 flex">
+                                    <XMarkIcon
+                                      //className="relative right-16 top-4 -translate-y-1/2 w-6 h-6 text-black hover:text-gray-50 hover:bg-gray-950 rounded-md cursor-pointer transition duration-200"
+                                      className=" w-6 h-6 text-black hover:text-gray-50 hover:bg-gray-950 rounded-md cursor-pointer transition duration-200"
+                                      aria-hidden="true"
+                                      title="Limpar Buscaa"
+                                      onClick={() => {
+                                        setclientNameSearch("");
+                                      }}
+                                    />
+                                    <PlusIcon
+                                      //className="relative right-8 top-4 -translate-y-1/2 w-6 h-6 text-black hover:text-gray-50 hover:bg-gray-950 rounded-md cursor-pointer transition duration-200"
+                                      className=" w-6 h-6 text-black hover:text-gray-50 hover:bg-gray-950 rounded-md cursor-pointer transition duration-200"
+                                      aria-hidden="true"
+                                      title="Nenhum Resultado Encontrado"
+                                    />
+                                  </div>
+                                </>
+                              ) : (
+                                <PlusIcon
+                                  className="relative right-8 top-4 -translate-y-1/2 w-6 h-6 text-black hover:text-gray-50 hover:bg-gray-950 rounded-md cursor-pointer transition duration-200"
+                                  aria-hidden="true"
+                                  onClick={() => {
+                                    setModalNewClient(true);
+                                  }}
+                                />
+                              )}
+                            </div>
                           </div>
                           {showDropdown && filteredClients.length > 0 && (
                             <ul className="absolute z-10 max-h-60 mt-1 w-1/4 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mouseover:bg-gray-900 mouseover:text-white">
@@ -398,8 +447,7 @@ const NewOs = ({ isOpen, onClose, notify }: Props) => {
                             clientNameSearch.length >= 2 &&
                             filteredClients.length === 0 && (
                               <p className="text-gray-900 font-[2px] font-mono flex justify-center mt-4">
-                                Não existe cliente com o nome buscado, clique no
-                                + para criar um novo cliente...
+                                Use o botão + para criar um novo cliente...
                               </p>
                             )}
                         </div>

@@ -217,7 +217,7 @@ const osSlice = createSlice({
         state.total = action.payload.total;
         state.totalPages = action.payload.totalPages;
         state.currentPage = action.payload.currentPage;
-        console.log("Resposta da API: ", action.payload.data)
+        //console.log("Resposta da API: ", action.payload.data)
         state.data = action.payload.data;
       })
       .addCase(getAllOsWithLimitAndPage.rejected, (state, action) => {
@@ -284,6 +284,7 @@ const osSlice = createSlice({
         state.message = null;
       })
       .addCase(createOs.fulfilled, (state, action) => {
+        //console.log("A resposta da API veio com sucesso!")
         state.success = true;
         state.error = null;
         state.loading = false;
@@ -293,10 +294,15 @@ const osSlice = createSlice({
           console.log("Resultado message: ", action.payload.message);
           state.data.push(action.payload.os);
         }
+        if(action.payload.message){
+          state.error = { message: action.payload.message };
+        }
       })
       .addCase(createOs.rejected, (state, action) => {
+        console.log("A resposta da API veio com erro!")
         state.success = false;
         state.error = { message: action.payload?.errors[0] || "Erro Desconhecido." };
+        
         state.loading = false;
         state.message = null;
       })

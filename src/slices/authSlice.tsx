@@ -114,7 +114,7 @@ const initialState: UserState = {
   usersList: null,
   totalUsers: 0
 };
-console.log('User localizado no localstorage: ', initialState.user?.userId);
+//console.log('User localizado no localstorage: ', initialState.user?.userId);
 
 // Slice Get all Users and Count
 export const getAllUsersAndCount = createAsyncThunk<

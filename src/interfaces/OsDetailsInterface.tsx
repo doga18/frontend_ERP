@@ -42,6 +42,7 @@ export interface newOsInterface {
   assignedTo: number;
   budget: string;
   discount: string;
+  clientAssigned?: number;
   images?: File[];
 }
 

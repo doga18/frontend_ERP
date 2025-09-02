@@ -24,6 +24,13 @@ interface ResponseErrorClientsCount {
 //   error?: string | null,
 // }
 
+interface ResponseClientByName {
+  rows: ClientDataUnique[],
+  error?: string,
+  message?: string,
+
+}
+
 const initialState: ResponseClientsCount = {
   total: 0,
   totalPages: 1,
@@ -58,13 +65,14 @@ export const getAllClientCount = createAsyncThunk<
 )
 // Get client byname
 export const searchClientByName = createAsyncThunk<
-  ClientDataUnique[],
+  ResponseClientByName,
   string,
   { rejectValue: ResponseErrorClientsCount }
 >(
   "clients/searchClientByName",
   async(name: string, thunkAPI) => {
     try {
+      console.log("valor para pesquisa: " + name);
       const response = await clientsService.searchClientByName(name);
       return response;
     } catch (error: unknown) {
@@ -186,7 +194,11 @@ const clientsSlice = createSlice(({
       })
       .addCase(searchClientByName.fulfilled, (state, action) => {
         state.loading = false;
-        state.searchClients = action.payload;
+        if(action.payload.message?.includes("Nenhum cliente encontrado")){
+          state.searchClients = [];
+          state.errors = [action.payload.message];
+        }
+        state.searchClients = action.payload.rows;
       })
       .addCase(searchClientByName.rejected, (state, action) => {
         if(!action.payload) return;

@@ -27,7 +27,7 @@ import type { OsDetailsInterface } from '../../interfaces/OsDetailsInterface';
 import OsDetails from './OsDetails';
 import NewOs from './NewOs';
 import Message from '../../components/Message';
-import ViewClient from '../client/ViewClient';
+// import ViewClient from '../client/ViewClient';
 
 interface Props {
   setCountOs?: (count: number) => void;
@@ -44,9 +44,9 @@ const Os = ({ setCountOs } : Props) => {
   // Modal control
   const [modalOsDetails, setModalOsDetails] = useState<boolean>(false)
   const [modalOsNew, setModalOsNew] = useState<boolean>(false)
-  const [modalViewClient, setModalViewClient] = useState<boolean>(false)
+  //const [modalViewClient, setModalViewClient] = useState<boolean>(false)
   const [selectedOs, setSelectedOs] = useState<OsDetailsInterface | null>(null);
-  const [hoveredClientId, setHoveredClientId] = useState<number | null>(null);
+  //const [hoveredClientId, setHoveredClientId] = useState<number | null>(null);
   // Página
   const [pageMessage, setPageMessage] = useState<string>("")
 
@@ -61,11 +61,11 @@ const Os = ({ setCountOs } : Props) => {
     //termId: termIdOs
   } = useSelector((state: RootState) => state.os);
   // Funçãoes
-  const constructTitleLink = (clientId: number) => (
-    <div className="abosolute bg-white p-2 border border-gray-300 rounded shadow-lg z-15">
-      <span className="text-indigo-600">Clique para ver detalhes do cliente #{clientId}</span>
-    </div>
-  );
+  // const constructTitleLink = (clientId: number) => (
+  //   <div className="abosolute bg-white p-2 border border-gray-300 rounded shadow-lg z-15">
+  //     <span className="text-indigo-600">Clique para ver detalhes do cliente #{clientId}</span>
+  //   </div>
+  // );
   // Controles da página:
   const handlePreviousPage = () => {
     if(currentPage > 1){
@@ -93,11 +93,11 @@ const Os = ({ setCountOs } : Props) => {
 };
 
   const searchById_number = (id: string) => {
-    console.log('Id recebido para busca é: ' + id);
+    //console.log('Id recebido para busca é: ' + id);
     dispatch(getOsById_number({ searchTerm: id }));
   }
   const searchByText = (text: string) => {
-    console.log('Text recebido para busca é: ' + text);
+    //console.log('Text recebido para busca é: ' + text);
     dispatch(getOsByArgumentsString({ searchTerm: text }));
   }
   useEffect(() => {
@@ -106,8 +106,8 @@ const Os = ({ setCountOs } : Props) => {
 
   useEffect(() => {
     if(totalOs && dataOs){
-      console.log("o total de os: " + totalOs);
-      console.log("o total de páginas é de : " + totalPagesOs);
+      //console.log("o total de os: " + totalOs);
+      //console.log("o total de páginas é de : " + totalPagesOs);
       setCountOs?.(totalOs);
       setTotal(totalOs);
       setTotalPages(totalPagesOs);
@@ -125,7 +125,7 @@ const Os = ({ setCountOs } : Props) => {
     }
   }, [pageMessage])
 
-  console.log('Os: ', allOs);
+  //console.log('Os: ', allOs);
 
   return (
     <div className='mt-6 px-5 '>
